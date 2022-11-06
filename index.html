@@ -187,7 +187,7 @@
         }
         .calorie {
             top: 1440px;
-            right: 100px;
+            right: 98px;
         }
         .set-data {
             width: 350px;
@@ -326,9 +326,9 @@
                 <div class="bgimgwrap">
                     <img src="" class="innerbgimg" id="bg-img" />
                 </div>
-                <img src="images/1.png" id="gui-img" />
+                <img src="" id="gui-img" />
                 <div class="portrait-wrap">
-                    <img class="portrait" id="portrait" src="images/default_portrait.png" />
+                    <img class="portrait" id="portrait" src="" />
                 </div>
                 <div class="weather-imgwrap">
                     <img src="" class="weather" id="weather" src="" />
@@ -430,6 +430,24 @@
                 <li>
                     <button onclick="Download()" class="save-btn">保存图片</button>
                 </li>
+            </ul>
+            <div id="drawpic_overlay">
+                <div class="drawpic_popup">
+                    <div><h5>绘制轨迹</h5></div>
+                    <div id="drawpic_canvas_wrap">
+                        <canvas id="drawpic_canvas" width="1" height="1"></canvas>
+                    </div>
+                    <div>
+                        <button onclick="drawpic_hidebtn_onClick()">取消</button>
+                        <button onclick="drawpic_initbtn_onClick()" class="init-btn">重置</button>
+                        <button onclick="drawpic_yesbtn_onClick()">确定</button>
+                    </div>
+                    <canvas id="buffer_canvas" style="display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="warning-wrap">
+            <ul class="setDataList">
                 <li>
                     <div class="warning">
                         <span>
@@ -452,20 +470,6 @@
                     </div>
                 </li>
             </ul>
-            <div id="drawpic_overlay">
-                <div class="drawpic_popup">
-                    <div><h5>绘制轨迹</h5></div>
-                    <div id="drawpic_canvas_wrap">
-                        <canvas id="drawpic_canvas" width="1" height="1"></canvas>
-                    </div>
-                    <div>
-                        <button onclick="drawpic_hidebtn_onClick()">取消</button>
-                        <button onclick="drawpic_initbtn_onClick()" class="init-btn">重置</button>
-                        <button onclick="drawpic_yesbtn_onClick()">确定</button>
-                    </div>
-                    <canvas id="buffer_canvas" style="display: none;"></canvas>
-                </div>
-            </div>
         </div>
     </div>
     <script src="./html2canvas.min.js"></script>
@@ -478,6 +482,12 @@
         var canvas, ctx, drawdown, convasData, current_img_width, current_img_height, draw_suofang, buffer_canvas;
         var bs, bs_prob, is_bs, bs_max, bs_range, bs_now, bs_start_x, bs_start_y, bs_end_x, bs_end_y, bs_pres_x, bs_pres_y, bs_pres_color;
         var draw_start_x, draw_start_y, draw_end_x, draw_end_y;
+
+        var empty_bg_src = "images/empty_bg.png" + "?_=" + new Date().getTime();
+        var gui_img_src = "images/1.png" + "?_=" + new Date().getTime();
+        var default_portrait_scr = "images/default_portrait.png" + "?_=" + new Date().getTime();
+        var start_sign_src = "images/start.png" + "?_=" + new Date().getTime();
+        var end_sign_src = "images/end.png" + "?_=" + new Date().getTime();
 
         function fract(num) {
             return num - Math.trunc(num);
@@ -519,8 +529,16 @@
             document.getElementById("inpt_humidity").value = humidity;
             document.getElementById("inpt_bs_prob").value = bs_prob;
             document.getElementById("inpt_savePic_width").value = savePic_width;
-            document.getElementById("gui-img").src = document.getElementById("gui-img").src + "?_=" + new Date().getTime();
-            document.getElementById("portrait").src = document.getElementById("portrait").src + "?_=" + new Date().getTime();
+            document.getElementById("gui-img").src = gui_img_src;
+            document.getElementById("portrait").src = default_portrait_scr;
+            let bgimg_select = document.getElementById("default_bgImgSelect");
+            for (let i = 0; i < bgimg_select.options.length; i ++) {
+                bgimg_select.options[i].value = bgimg_select.options[i].value + "?_=" + new Date().getTime();
+            }
+            let weather_select = document.getElementById("weather_Select");
+            for (let i = 0; i < weather_select.options.length; i ++) {
+                weather_select.options[i].value = weather_select.options[i].value + "?_=" + new Date().getTime();
+            }
         }
 
         //渲染, 将输入的内容放到图片的对应位置
@@ -549,7 +567,7 @@
         //选择预设图片
         function default_bgImgSelect_onChange() {
             default_bgSRC = document.getElementById("default_bgImgSelect").value;
-            document.getElementById("bg-img").src = document.getElementById("default_bgImgSelect").value + "?_=" + new Date().getTime();
+            document.getElementById("bg-img").src = document.getElementById("default_bgImgSelect").value;
             document.getElementById("bg-img").onload = function() {
                 getNaturalSize();
             }
@@ -557,7 +575,7 @@
 
         //选择天气
         function weather_Select_onChange() {
-            document.getElementById("weather").src = document.getElementById("weather_Select").value + "?_=" + new Date().getTime();
+            document.getElementById("weather").src = document.getElementById("weather_Select").value;
         }
 
         function dataURLtoBlob(dataurl) {
@@ -648,7 +666,7 @@
         function init_portrait() {
             document.getElementById("portrait").style.height = "120px";
             document.getElementById("portrait").style.width = "120px";
-            document.getElementById("portrait").src = "images/default_portrait.png";
+            document.getElementById("portrait").src = default_portrait_scr;
         }
 
         /*----- 以下为[绘制自定义轨迹]用到的方法 -----*/
@@ -751,8 +769,8 @@
                     draw_end_y = e.offsetY * draw_suofang;
                     var startIMG = new Image();
                     var endIMG = new Image();
-                    startIMG.src = "images/start.png" + "?_=" + new Date().getTime();
-                    endIMG.src = "images/end.png" + "?_=" + new Date().getTime();
+                    startIMG.src = start_sign_src;
+                    endIMG.src = end_sign_src;
                     startIMG.onload = function () {
                         ctx.drawImage(startIMG, Math.floor(draw_start_x - 15 * draw_suofang), Math.floor(draw_start_y - 22 * draw_suofang), Math.floor(30 * draw_suofang), Math.floor(30 * draw_suofang));
                     }
@@ -788,8 +806,8 @@
                     draw_end_y = e.offsetY * draw_suofang;
                     var startIMG = new Image();
                     var endIMG = new Image();
-                    startIMG.src = "images/start.png" + "?_=" + new Date().getTime();
-                    endIMG.src = "images/end.png" + "?_=" + new Date().getTime();
+                    startIMG.src = start_sign_src;
+                    endIMG.src = end_sign_src;
                     startIMG.onload = function () {
                         ctx.drawImage(startIMG, parseInt(draw_start_x - 15 * draw_suofang), parseInt(draw_start_y - 22 * draw_suofang), parseInt(30 * draw_suofang), parseInt(30 * draw_suofang));
                     }
@@ -805,7 +823,7 @@
             ctx = canvas.getContext('2d');
             var bgIMG = new Image();
             if (use_default_bg) {
-                bgIMG.src = "images/empty_bg.png" + "?_=" + new Date().getTime();
+                bgIMG.src = empty_bg_src;
             } else {
                 bgIMG.src = bgSRC;
             }
@@ -898,11 +916,12 @@
             bs_prob = 0.2;
             savePic_width = 1080;
 
+            initInputData();
+
             default_bgImgSelect_onChange();
             weather_Select_onChange();
             inpt_colorchange_checkbox_onchange();
 
-            initInputData();
             rander();
         }
     </script>
