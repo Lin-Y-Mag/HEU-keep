@@ -301,6 +301,19 @@
             background-color: #fff;
             position: relative;
             border: 2px solid #999;
+            height: 500px;
+            width: 250px;
+            position: absolute;
+            display: flex;
+            overflow: hidden;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+        }
+        #drawpic_canvas_wrap2 {
+            background-color: #fff;
+            position: relative;
+            border: 2px solid #999;
             height: 300px;
             width: 250px;
             display: flex;
@@ -424,9 +437,11 @@
             <div id="drawpic_overlay">
                 <div class="drawpic_popup">
                     <div><h5>绘制轨迹</h5></div>
-                    <div id="drawpic_canvas_wrap">
-                        <canvas id="drawpic_canvas" width="1" height="1"></canvas>
-                    </div>
+                        <div id="drawpic_canvas_wrap2">
+                            <div id="drawpic_canvas_wrap">
+                                <canvas id="drawpic_canvas" width="1" height="1"></canvas>
+                            </div>
+                        </div>
                     <div>
                         <button onclick="drawpic_hidebtn_onClick()">取消</button>
                         <button onclick="drawpic_initbtn_onClick()" class="init-btn">重置</button>
