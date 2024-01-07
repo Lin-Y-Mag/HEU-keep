@@ -1,0 +1,675 @@
+@font-face {
+    font-family: 'keeprun';
+    src: url(../DINCond-Bold.otf);
+}
+@font-face {
+    font-family: 'STKAITI';
+    src: url(../STKAITI.TTF);
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    /* 确保覆盖整个视口的高度 */
+    /* margin: 0; */
+    /* 去除默认的边距 */
+    /* padding: 0; */
+    /* 去除默认的内边距 */
+    position: relative;
+    background: linear-gradient(to bottom, #d1eeff 0%, #ffefff 100%);
+    background-color: #fff;
+    background-attachment: fixed;
+    /* overflow-x: hidden; */
+    /* 禁止水平滚动 */
+}
+
+.mile2-inp {
+    width: 40px;
+}
+
+.filter {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #9db3fc;
+    animation: colorChange 30s ease-in-out infinite;
+    animation-fill-mode: both;
+    mix-blend-mode: overlay;
+}
+
+
+@keyframes colorChange {
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: .9;
+    }
+}
+
+.header-container {
+    display: flex;
+    justify-content: left;
+    /* 这将确保标题和按钮之间有最大的空间 */
+    align-items: center;
+    /* 这会垂直居中它们 */
+}
+
+.flush-btn{
+    font: 18px "Microsoft YaHei", "Segoe UI", Arial, Helvetica, sans-serif;
+    width: 80px;
+    height: 60px;
+    padding: 1px 1px 1px 1px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.one_click {
+    font: 18px "Microsoft YaHei", "Segoe UI", Arial, Helvetica, sans-serif;
+    background-color: rgba(255, 128, 0, 0.785);
+    border: 2px solid rgba(255, 115, 0, 0.473);
+    width: 50px;
+    height: 60px;
+    padding: 1px 1px 1px 1px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 这是一个容器，用于包装两个div元素 */
+.weather-container {
+    display: flex;
+    align-items: center;
+    /* 这会使内部的元素在容器内垂直居中对齐 */
+    gap: 2px;
+    /* 这将设置两个div元素之间的间距。您可以根据需要调整 */
+    /* margin-left: 8px;
+    margin-bottom: 10px; */
+}
+
+.content {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    /* 适应整个视口的宽度 */
+    z-index: 0;
+    /* 确保它在图片下 */
+    color: #f6a3ff;
+    padding: 8px 1px 1px min(5.8vw, 60px);
+    text-align: left;
+    /* 将内容调整为左侧对齐 */
+    word-wrap: break-word;
+    /* max-width: 320px;
+    width: 94vw; */
+}
+
+.content .hr {
+    border: none;
+}
+
+.container {
+    width: 325px;
+    /* 定义框的宽度 */
+    height: 50px;
+    /* 定义框的高度 */
+    background-color: #fbdaff;
+    border-radius: 10px;
+    display: flex;
+    /* 使用Flexbox布局来居中文本 */
+    justify-content: center;
+    /* 水平居中文本 */
+    align-items: center;
+    /* 垂直居中文本 */
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    /* 添加轻微的阴影 */
+}
+
+#hitokoto {
+    color: rgb(48, 161, 255);
+    font-family: 'KaiTi', 'STKaiti', '楷体', cursive;
+    /* 为了最大的兼容性，列出多个字体名称 */
+    font-size: 20px;
+    /* letter-spacing: 0.08em; */
+    padding: 1px 1px 1px 4px;
+    /* 上, 右, 下, 左 */
+    /* white-space: pre-line; */
+    /* 这样，如果文本中有换行或空格，它们会被保留 */
+    line-height: 1;
+    /* 增加行高以避免文字重叠 */
+}
+
+
+
+#messageBox {
+    display: none;
+    margin-left: 20px;
+    /* 使消息框离按钮有一些距离 */
+    inline-size: fit-content;
+    /* 让消息框适应内容大小 */
+}
+
+image {
+    max-width: none;
+    max-height: none;
+}
+
+connect {
+    font-weight: bold;
+    font-size: small;
+    height: 3px;
+    background-color: rgb(0, 68, 255);
+    color: #ffffff00;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    list-style: none;
+}
+
+hr {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    border: 0;
+    /* border-top: 1px solid rgba(3, 137, 87, .5); */
+    border-top: 1px solid rgba(93, 20, 188, 0.5);
+    box-sizing: content-box;
+    height: 0;
+    overflow: visible;
+    display: block;
+    unicode-bidi: isolate;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: auto;
+    margin-inline-end: auto;
+}
+
+.range-input {
+    background-color: #f0f0f0;
+    /* 这里选择的是淡灰色，您可以根据需要更改 */
+}
+
+.background-color-block1 {
+    background-color: rgba(0, 128, 0, 0.272);
+    /* background-color: #ffb1b1; */
+    display: inline-block;
+    /* 使其与标签对齐 */
+    padding: 5px;
+    /* 可选，为了美观 */
+    border-radius: 5px;
+    /* 可选，为了美观 */
+    font-size: 0.9rem;
+}
+
+.background-color-block2 {
+    background-color: #ffb1b16a;
+    /* 这里选择的是淡灰色，您可以根据需要更改 */
+    display: inline-block;
+    /* 使其与标签对齐 */
+    padding: 5px;
+    /* 可选，为了美观 */
+    border-radius: 5px;
+    /* 可选，为了美观 */
+}
+
+#main-div {
+    margin-top: 0px;
+    max-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: space-around;
+}
+
+#main-div .new-img {
+    margin: 70px 0 0px 0;
+    /* 上、右、下、左 */
+    width: 360px;
+    height: 719px;
+    z-index: 9999;
+    position: relative;
+}
+
+.new-img #gui-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 719px;
+    vertical-align: top;
+}
+
+.new-img .bgimgwrap {
+    width: 360px;
+    height: 719px;
+    position: absolute;
+    display: flex;
+    overflow: hidden;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.new-img .innerbgimg {
+    width: 360px;
+    height: 719px;
+    margin: 0 auto;
+    display: flex;
+}
+
+.new-img .portrait-wrap {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    display: flex;
+    overflow: hidden;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    top: 335px;
+    left: 284px;
+    border-radius: 20px;
+}
+
+.new-img .portrait {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+    display: block;
+}
+
+.new-img .weather-imgwrap {
+    height: 14px;
+    width: 14px;
+    top: 426.5px;
+    left: 238px;
+    position: absolute;
+    display: flex;
+    overflow: hidden;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.new-img .weather {
+    width: 14px;
+    height: 14px;
+    margin: 0 auto;
+    display: block;
+}
+
+.new-img span {
+    position: absolute;
+}
+
+.username {
+    top: 385px;
+    right: 34px;
+    font-size: 13px;
+}
+
+.keep-title {
+    top: 361px;
+    left: 30px;
+    line-height: 16px;
+    color: #a2a2a2;
+    font-size: 12px;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+}
+
+.mile {
+    color: #57525d;
+    font-family: 'keeprun';
+    top: 387px;
+    left: 32px;
+}
+
+.mile .mile-data {
+    font-size: 50px;
+    transform: scale(1, 0.85);
+    transform-origin: 0 0;
+    margin: 0 auto;
+    letter-spacing: -1px;
+    display: inline-block;
+    position: relative;
+}
+
+.mile .gongli {
+    color: #57525d;
+    font-size: 10.67px;
+    font-family: 'keeprun';
+    margin-left: 5px;
+    bottom: 8px;
+    position: relative;
+    display: inline-block;
+}
+
+.datetime {
+    color: #a2a2a2;
+    font-size: 13px;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+}
+
+.date {
+    top: 407px;
+    left: 222px;
+}
+
+.time {
+    top: 407px;
+    left: 296px;
+}
+
+.env {
+    color: #a2a2a2;
+    font-size: 13px;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    letter-spacing: -0.5px;
+}
+
+.temperature {
+    top: 424px;
+    left: 252px;
+}
+
+.humidity {
+    top: 424px;
+    left: 303px;
+}
+
+.speed-time {
+    color: #58505b;
+    font-size: 28px;
+    font-family: 'keeprun';
+    transform: scale(1, 0.85);
+}
+
+.speed {
+    top: 480px;
+    left: 32px;
+    letter-spacing: -0.5px;
+}
+
+.cost-time {
+    top: 480px;
+    left: 140px;
+    letter-spacing: -0.5px;
+}
+
+.calorie {
+    top: 480px;
+    right: 32px;
+}
+
+.set-data {
+    text-align: left;
+    z-index: 1;
+    margin: 5px 0;
+    width: 360px;
+    font-size: 0.95rem;
+}
+
+input {
+    width: 40px;
+    height: 24px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    /* padding-left: 5px; */
+    border-radius: 5px;
+    /* border: 1px solid #038957; */
+    border: 1px solid rgba(227, 244, 255, 0.648);
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+:focus-visible {
+    /* outline: #15b77b auto 1px; */
+    outline: rgba(48, 161, 255, 0.648) auto 1px;
+}
+
+.username-inp {
+    width: 125px;
+}
+
+.keep-title-inp {
+    width: 200px;
+}
+
+.time-inp {
+    width: 20px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.year-inp {
+    width: 40px;
+}
+
+button {
+    width: 80px;
+    height: 30px;
+    /* background-color: #24c68a; */
+    background-color: rgba(48, 161, 255, 0.648);
+    color: #fff;
+    border-radius: 9px;
+    line-height: 16px;
+    /* border: 2px solid #c5e4a4; */
+    border: 2px solid #a4d3e4;
+    font-size: 15px;
+}
+
+.large-btn {
+    width: 180px;
+    height: 50px;
+    border-radius: 26px;
+    line-height: 36px;
+    font-size: 20px;
+}
+
+.background-green {
+    background-color: rgba(0, 128, 0, 0.272);
+    display: inline-block;
+    /* 使其与标签对齐 */
+    padding: 5px;
+    /* 可选，为了美观 */
+    border-radius: 5px;
+    /* 可选，为了美观 */
+}
+
+.background-blue {
+    background-color: #b1dbff;
+    display: inline-block;
+    /* 使其与标签对齐 */
+    padding: 5px;
+    /* 可选，为了美观 */
+    border-radius: 5px;
+    /* 可选，为了美观 */
+}
+/* 设置 #rand 为蓝色
+[data-text*="#rand"] {
+    background-color: rgba(255, 157, 198, 0.421);
+}
+
+/* 设置 #live 为红色 */
+/* [data-text*="#live"] {
+    background-color: #ffb1b1;
+} */
+
+.storeToIndexedDB-btn {
+    font: 18px "Microsoft YaHei", "Segoe UI", Arial, Helvetica, sans-serif;
+    background-color: green;
+    FONT-VARIANT: JIS78;
+    width: 80px;
+    height: 60px;
+    padding: 1px 1px 1px 1px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.clear-btn {
+    color: rgb(0, 65, 117);
+    background-color: tomato;
+    line-height: 18px;
+    width: 30px;
+    height: 42px;
+    padding: 1px 1px 1px 1px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.init-btn {
+    background-color: #c6c6c6;
+}
+
+.set-data h4,
+.set-data h5 {
+    font-size: 22px;
+    font-weight: normal;
+    /* color: #24c68a; */
+    color: rgb(0, 107, 194);
+}
+
+.setDataList li {
+    margin-top: 7.5px;
+    margin-bottom: 7.5px;
+    margin-inline-start: 0.5rem;
+}
+
+.setDataList label {
+    /* color: #24c68a; */
+    color: rgb(0, 107, 194);
+}
+
+.ApiExplanation {
+    color: #587fff;
+    /* color: #000; */
+    font-family: 'KaiTi', 'STKaiti', '楷体', cursive;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.align-center {
+    text-align: center;
+}
+
+select {
+    width: auto;
+    height: 30px;
+    /* background-color: #24c68a; */
+    background-color: rgba(48, 161, 255, 0.648);
+    color: #fff;
+    border-radius: 9px;
+    line-height: 16px;
+    /* border: 2px solid #c5e4a4; */
+    border: 2px solid #a4d3e4;
+    font-size: 15px;
+}
+
+.guijiSelect {
+    display: none;
+}
+
+.warning {
+    font-size: 20px;
+    padding: 1rem 0 0 0;
+}
+
+.explanation {
+    color: #666;
+    padding: 1rem 0 0 0;
+    font-size: 15px;
+}
+
+.explanation a {
+    text-decoration: underline;
+    color: #0000FF;
+}
+
+
+.update {
+    padding: 1rem 1rem 1rem 1rem;
+    background-color: #fff1be8c;
+    /* 背景颜色 */
+    color: #f971ac;
+    line-height: 30px;
+    border-radius: 5px;
+    /* 边框圆角 */
+    font-size: 15px;
+    /* width: 400px; */
+    /* 设置固定宽度 */
+    margin: 10px 10px 30px 0;
+}
+
+#inpt_colorchange_checkbox {
+    width: 20px;
+    height: 20px;
+    /* background-color: #24c68a; */
+    background-color: rgba(60, 145, 220, 0.648);
+    color: #fff;
+    border-radius: 9px;
+    line-height: 16px;
+    /* border: 2px solid #c5e4a4; */
+    border: 2px solid #a4d3e4;
+    font-size: 16px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+#drawpic_overlay {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    touch-action: none;
+}
+
+.drawpic_popup {
+    background-color: #ffffff;
+    width: max-content;
+    text-align: center;
+}
+
+#drawpic_canvas_wrap {
+    background-color: #fff;
+    position: relative;
+    height: 600px;
+    width: 300px;
+    position: absolute;
+    display: flex;
+    overflow: hidden;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+#drawpic_canvas_wrap2 {
+    background-color: #fff;
+    position: relative;
+    border: 2px solid #999;
+    height: 400px;
+    width: 300px;
+    display: flex;
+    overflow: hidden;
+    justify-content: center;
+}

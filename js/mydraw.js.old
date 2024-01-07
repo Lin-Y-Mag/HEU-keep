@@ -1,0 +1,5 @@
+// function mydraw(path) {
+//     console.log(path)
+//     drawpic_initbtn_onClick();
+//     Json2Draw(path);
+// }
