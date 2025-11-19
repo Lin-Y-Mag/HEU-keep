@@ -1,8 +1,12 @@
 //onload.js
 //初始化变量
 
-
 window.onload = async function () {
+    // 优化1：优先获取页面上已经被新API填入的数值，如果为空再使用默认值
+    // 这样可以防止旧代码把新API获取到的真实天气覆盖掉
+    let currentTemp = document.getElementById("inpt_temperature") ? document.getElementById("inpt_temperature").value : "";
+    let currentHum = document.getElementById("inpt_humidity") ? document.getElementById("inpt_humidity").value : "";
+
     let datetime_now = new Date();
     date_year = datetime_now.getFullYear();
     date_month = datetime_now.getMonth() + 1;
@@ -11,8 +15,11 @@ window.onload = async function () {
     time_min = datetime_now.getMinutes();
     username = "用户名";
     keep_title = "哈尔滨工程大学南田径场";
-    humidity = 23;
-    temperature = 12;
+    
+    // 优化1续：如果currentTemp有值（例如23），就用它；否则用默认值(如45%)
+    humidity = currentHum ? parseInt(currentHum) : 45; 
+    temperature = currentTemp ? parseInt(currentTemp) : 20;
+    
     bs = true;
     bs_prob = 0.08;
     bs_range_min = 30;
@@ -39,30 +46,7 @@ window.onload = async function () {
     document.getElementById("inpt_miles").value = miles;
     document.getElementById("inpt_speeds").value = speeds;
     document.getElementById("auto_draw_checkbox").checked = auto_change;
-    // function updateSelectedOption() {//预设图片
-    //     // 获取<select>元素
-    //     const selectElement = document.getElementById('guiji_Select_1');
-    //     // 转换default_bgSRC为字符串，以便与<option>的值进行比较
-    //     let valueToMatch = JSON.stringify(default_bgSRC[0]);
-    //     valueToMatch = valueToMatch.replace(/\?.*/, '"')
-    //     valueToMatch = valueToMatch.substring(1, valueToMatch.length - 1);
-    //     // 遍历所有<option>元素
-    //     for (let i = 0; i < selectElement.options.length; i++) {
 
-    //         let matches = selectElement.options[i].value.replace(/(")([^"]+)\?.*?(")/g, '$1$2$3').match(/"(images\/[^"]+\.png)"/);
-    //         if (matches && matches[1]) {
-    //             htmlString = matches[1];
-    //         }
-    //         // 如果<option>的值与default_bgSRC匹配
-    //         if (htmlString === valueToMatch) {
-    //             // 设置该<option>为选中状态
-    //             selectElement.options[i].selected = true;
-    //             break;  // 匹配到了就退出循环
-    //         }
-    //     }
-    // }
-
-    // render()
     document.addEventListener('dbReady', async function () {
         // 尝试从IndexedDB检索数据
         retrieveData("user_info", function (err, data) {
@@ -82,8 +66,6 @@ window.onload = async function () {
                 bs_range_max = data.bs_range_max || bs_range_max;
                 savePic_width = data.savePic_width || savePic_width;
                 auto_change = data.auto_change;
-                // updateSelectedOption(); //预设图片
-
 
                 // ...为其他属性设置值...
                 document.getElementById("inpt_username").value = username;
@@ -129,7 +111,6 @@ window.onload = async function () {
         });
 
         retrieveData("user_portrait", function (err, data) {
-            // console.log("2");
             if (data && data.portrait_data) {
                 let IMG = new Image();
                 IMG.src = data.portrait_data;
@@ -176,9 +157,8 @@ window.onload = async function () {
                 }
             }
         });
-
-
     });
+
     // 初始化您的输入框和其他数据
     initInputData();
     init_portrait()
@@ -188,12 +168,13 @@ window.onload = async function () {
     render();
     dbReady()
 
-    // 尝试获取天气数据
+    // 优化2：注释掉旧的天气获取逻辑，彻底解决弹窗问题
+    // 并且避免旧接口失败后覆盖新接口获取到的数据
+    /*
     try {
         const weatherData = await loadAMapWeather();
         temperature = parseInt(weatherData.temperature);
         humidity = parseInt(weatherData.humidity);
-        // console.log("Weather data:", weatherData.temperature);
 
         document.getElementById("inpt_temperature").value = temperature;
         document.getElementById("inpt_humidity").value = humidity;
@@ -205,11 +186,12 @@ window.onload = async function () {
         temperature = 10; // 默认值
         humidity = 42;    // 默认值
         console.error("Error occurred when fetching weather:", err);
-        alert('温度、湿度获取失败，请手动输入');
+        alert('温度、湿度获取失败，请手动输入'); // <--- 这里就是弹窗的来源
     }
+    */
+
     // Call the drawMine function
     let url = 'https://tool.joytion.cn/generate-track';
-
     
     if (auto_change) {
         fetch(url)
@@ -229,6 +211,4 @@ window.onload = async function () {
                 console.log('Json_Get_Error:', error);
             });
     }
-
-//	    setTimeout(function() {window.scrollTo(0, 1)}, 0)
 }
