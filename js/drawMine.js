@@ -1,5 +1,8 @@
 /**
- * drawMine.js (修复横穿线BUG + 右上角自然进场 + 剧烈抖动)
+ * drawMine.js (最终重构版)
+ * 1. 彻底修复起点瞬移左下角的BUG (重写了生成顺序)
+ * 2. 引入"随机游走"算法，模拟人跑偏、斜着跑的真实感
+ * 3. 起点范围扩大，进场更随机
  */
 
 // ==========================================
@@ -12,86 +15,80 @@ function generateLocalTrackData() {
     const LENGTH = 115;   
     const ROTATE = -4;    
     const BASE_R = 61;    
-    const STEP = 15; // 大步长，保留真实感      
-
-    // 1. 先生成一个标准的“底板”圈 (不带噪点)
-    // 这里的目的是确定形状和起点位置
-    const baseLap = generateBaseEllipse(BASE_CX, BASE_CY, LENGTH, BASE_R, STEP);
-
-    // 2. 找到“右上角”的索引，重新排列底板
-    // 上直道结束的位置大约就是右上角
-    const pointsPerStraight = Math.floor(LENGTH / STEP);
-    const shiftIndex = pointsPerStraight + 2; // 稍微往弯道进一点点
-
-    // 重新排序：将起点强制变更为右上角
-    // 这样我们后续复制圈数时，每一圈的起点就天然在右上角了
-    const part1 = baseLap.slice(0, shiftIndex);
-    const part2 = baseLap.slice(shiftIndex);
-    const rotatedBaseLap = part2.concat(part1);
+    const STEP = 15; // 大步长
 
     let allPoints = [];
     
-    // 3. 基于旋转后的底板，生成 5 到 8 圈
-    const laps = Math.floor(Math.random() * 4) + 5; 
-
-    for (let i = 0; i < laps; i++) {
-        // 每一圈的随机参数 (道次漂移)
-        const r_noise = (Math.random() * 6 - 3); 
-        const cy_noise = (Math.random() * 4 - 2);
-        const cx_noise = (Math.random() * 2 - 1);
-        
-        // 基于底板生成带有噪点的这一圈
-        const currentLapPoints = rotatedBaseLap.map(p => ({
-            x: p.x + cx_noise + (p.isVertical ? r_noise : 0), // 简化的变形逻辑
-            y: p.y + cy_noise + (p.isVertical ? 0 : r_noise)
-        }));
-
-        // 为了增加真实感，我们不能直接用currentLapPoints，因为那样太圆滑
-        // 我们需要重新通过算法生成点，但要确保起点对齐
-        // 最简单的方法：直接调用 generateEllipse 但使用修正后的起始角度？
-        // 不，为了保证连续性，我们采用“基于点偏移”的方法更稳妥。
-        
-        // 重新生成一圈数据，这次我们直接生成一长串连续的数据
-        // 但为了避免横穿线，我们采用更简单的策略：
-        // 直接按顺序生成多圈，每一圈都在上一圈的末尾继续
-        
-        // 修正策略：我们放弃上面的 map，直接用循环生成连续点
-    }
-
-    // --- 修正后的生成逻辑 (解决横穿线) ---
-    allPoints = [];
+    // 1. 确定全局起点 (Start Target)
+    // 现在这是一个大约 40x20 的随机区域，而不再是一个点
+    // 位于右上角直道末端附近
+    const startTargetX = BASE_CX + LENGTH/2 + (Math.random() * 30 - 15); 
+    const startTargetY = BASE_CY - BASE_R + (Math.random() * 20 - 10);
     
-    // 进场线的目标点 (右上角估算坐标)
-    const startTargetX = BASE_CX + LENGTH/2 - 5; 
-    const startTargetY = BASE_CY - BASE_R + 5;
-    
-    // 生成进场线
+    // 2. 生成进场线 (小尾巴)，连到这个随机起点
     const entryPoints = generateNaturalEntry({x: startTargetX, y: startTargetY});
     allPoints = [...entryPoints];
 
-    // 开始跑圈
-    for (let i = 0; i < laps; i++) {
-        const r_drift = (Math.random() * 6 - 3); // 半径漂移
-        const cx_drift = (Math.random() * 2 - 1);
-        const cy_drift = (Math.random() * 4 - 2);
+    // 3. 模拟跑 5 到 8 圈
+    const laps = Math.floor(Math.random() * 4) + 5; 
 
-        // 关键：generateRotatedLap 生成的是从右上角开始的一整圈
-        const lapPoints = generateRotatedLap(
-            BASE_CX + cx_drift, 
-            BASE_CY + cy_drift, 
-            LENGTH, 
-            BASE_R + r_drift, 
-            STEP
-        );
-        allPoints = allPoints.concat(lapPoints);
+    // 用于"斜着跑"的惯性变量 (低频漂移)
+    let wanderX = 0;
+    let wanderY = 0;
+
+    for (let i = 0; i < laps; i++) {
+        // 每一圈的基础参数 (道次)
+        const r_lap = BASE_R + (Math.random() * 6 - 3); // 半径随机
+        const cx_lap = BASE_CX + (Math.random() * 2 - 1);
+        const cy_lap = BASE_CY + (Math.random() * 4 - 2);
+        
+        // ⚠️ 核心修复：直接从[右上角]开始生成这一圈的数据
+        // 顺序：右弯道 -> 下直道 -> 左弯道 -> 上直道
+        // 这样物理上保证了终点必定回到右上角，绝不会跳到左下角
+        const lapPoints = generateOneLapOrdered(cx_lap, cy_lap, LENGTH, r_lap, STEP);
+
+        // 对这一圈的点应用"斜着跑"算法
+        const driftedLap = lapPoints.map(p => {
+            // 1. 随机游走 (Random Walk) - 模拟斜着跑
+            // 每次只改变一点点，累加起来就是一条斜线
+            wanderX += (Math.random() - 0.5) * 1.5; 
+            wanderY += (Math.random() - 0.5) * 1.5;
+            
+            // 限制漂移最大幅度，防止跑出操场
+            wanderX *= 0.95; // 衰减因子，让它有回归中心的趋势
+            wanderY *= 0.95;
+
+            // 2. 高频抖动 (Jitter) - 模拟GPS误差
+            const jitterX = Math.random() * 2 - 1;
+            const jitterY = Math.random() * 2 - 1;
+
+            return {
+                x: p.x + wanderX + jitterX,
+                y: p.y + wanderY + jitterY
+            };
+        });
+
+        allPoints = allPoints.concat(driftedLap);
     }
 
-    // 结束缓冲 (跑 20% - 50% 圈后停下)
-    const endLapPoints = generateRotatedLap(BASE_CX, BASE_CY, LENGTH, BASE_R, STEP);
-    const cutIndex = Math.floor(endLapPoints.length * 0.2 + Math.random() * (endLapPoints.length * 0.3));
-    allPoints = allPoints.concat(endLapPoints.slice(0, cutIndex));
+    // 4. 结束缓冲 (多跑一点点)
+    const endLap = generateOneLapOrdered(BASE_CX, BASE_CY, LENGTH, BASE_R, STEP);
+    // 随机跑 10% 到 40% 圈
+    const cutIndex = Math.floor(endLap.length * (0.1 + Math.random() * 0.3));
+    
+    // 同样应用惯性漂移
+    for(let i=0; i<cutIndex; i++) {
+        wanderX += (Math.random() - 0.5) * 1.5;
+        wanderY += (Math.random() - 0.5) * 1.5;
+        wanderX *= 0.95; wanderY *= 0.95;
+        
+        allPoints.push({
+            x: endLap[i].x + wanderX + (Math.random()*2-1),
+            y: endLap[i].y + wanderY + (Math.random()*2-1)
+        });
+    }
 
-    // --- 坐标变换 (整体旋转) ---
+    // --- 坐标变换 (整体旋转 -4度) ---
     const rad = ROTATE * Math.PI / 180; 
     const cos = Math.cos(rad);
     const sin = Math.sin(rad);
@@ -104,18 +101,14 @@ function generateLocalTrackData() {
         let finalX = rx + BASE_CX;
         let finalY = ry + BASE_CY;
         
-        // GPS 噪点 (剧烈抖动)
-        const noiseX = Math.random() * 2.5 - 1.25;
-        const noiseY = Math.random() * 2.5 - 1.25;
-
         return {
             action: index === 0 ? 'down' : 'move',
-            x: finalX + noiseX,
-            y: finalY + noiseY
+            x: finalX,
+            y: finalY
         };
     });
 
-    // 50% 概率反向跑
+    // 50% 概率反向跑 (中心对称)
     if (Math.random() < 0.5) {
         resultData.forEach(p => {
             p.x = BASE_CX - (p.x - BASE_CX);
@@ -132,65 +125,50 @@ function generateLocalTrackData() {
     return resultData;
 }
 
-// 生成一圈数据，但是起点强制设定在“右上角”
-// 顺序：右半圆(部分) -> 下直道 -> 左半圆 -> 上直道 -> 右半圆(剩余)
-// 为了代码简单，我们还是生成标准圈，然后数组轮转
-function generateRotatedLap(cx, cy, length, r, step) {
+// ✅ 核心函数：按真实跑步顺序生成一圈 (从右上角开始)
+// 顺序：右弯道 -> 下直道 -> 左弯道 -> 上直道
+function generateOneLapOrdered(cx, cy, length, r, step) {
     let points = [];
-    // 1. 上直道 (左->右)
-    for (let x = cx - length/2; x <= cx + length/2; x += step) {
-        points.push({x: x, y: cy - r + (Math.random()*2 - 1)});
-    }
-    // 2. 右半圆
+
+    // 1. 右半圆 (从顶部 -PI/2 开始，顺时针画到底部 PI/2)
+    // 注意：Canvas Y轴向下，所以 -PI/2 是正上方
     for (let angle = -Math.PI/2; angle <= Math.PI/2; angle += step/r) {
         points.push({
             x: cx + length/2 + r * Math.cos(angle),
             y: cy + r * Math.sin(angle)
         });
     }
-    // 3. 下直道 (右->左)
+
+    // 2. 下直道 (从右向左)
     for (let x = cx + length/2; x >= cx - length/2; x -= step) {
-        points.push({x: x, y: cy + r + (Math.random()*2 - 1)});
+        points.push({x: x, y: cy + r});
     }
-    // 4. 左半圆
+
+    // 3. 左半圆 (从底部 PI/2 开始，顺时针画到顶部 1.5 PI)
     for (let angle = Math.PI/2; angle <= 1.5*Math.PI; angle += step/r) {
         points.push({
             x: cx - length/2 + r * Math.cos(angle),
             y: cy + r * Math.sin(angle)
         });
     }
-    
-    // 轮转数组，把起点移到右上角 (上直道结束处)
-    const pointsPerStraight = Math.floor(length / step);
-    const shiftIndex = pointsPerStraight + 2; 
 
-    if (points.length > shiftIndex) {
-        const part1 = points.slice(0, shiftIndex);
-        const part2 = points.slice(shiftIndex);
-        return part2.concat(part1);
+    // 4. 上直道 (从左向右)
+    for (let x = cx - length/2; x <= cx + length/2; x += step) {
+        points.push({x: x, y: cy - r});
     }
+
     return points;
 }
 
-// 仅用于辅助计算轮转索引的底板生成器 (无噪点)
-function generateBaseEllipse(cx, cy, length, r, step) {
-    let points = [];
-    for (let x = cx - length/2; x <= cx + length/2; x += step) points.push({x:x, y:cy-r});
-    for (let angle = -Math.PI/2; angle <= Math.PI/2; angle += step/r) points.push({x:cx+length/2+r*Math.cos(angle), y:cy+r*Math.sin(angle)});
-    for (let x = cx + length/2; x >= cx - length/2; x -= step) points.push({x:x, y:cy+r});
-    for (let angle = Math.PI/2; angle <= 1.5*Math.PI; angle += step/r) points.push({x:cx-length/2+r*Math.cos(angle), y:cy+r*Math.sin(angle)});
-    return points;
-}
-
-
-// 自然的进场“小尾巴”生成器 (指向右上角)
+// 进场线生成器 (连接到随机生成的起点)
 function generateNaturalEntry(target) {
     let points = [];
-    const numPoints = 8; 
+    const numPoints = 7; 
     
-    // 场外起点：目标点偏右 20-40px，偏上 20-50px
-    const offsetX = 20 + Math.random() * 20; 
-    const offsetY = -30 - Math.random() * 20;
+    // 场外起点：随机性更大
+    // 在目标点的右侧 20~50px，上方 20~60px 区域
+    const offsetX = 20 + Math.random() * 30; 
+    const offsetY = -20 - Math.random() * 40;
     
     const startOrigin = {
         x: target.x + offsetX,
@@ -199,16 +177,16 @@ function generateNaturalEntry(target) {
 
     for(let i = 0; i < numPoints; i++) {
         const t = i / numPoints;
-        // 简单的曲线插值
+        // 贝塞尔曲线插值
         let currentX = startOrigin.x + (target.x - startOrigin.x) * t;
         let currentY = startOrigin.y + (target.y - startOrigin.y) * t;
         
-        // 弧度修正
-        const arcCurve = Math.sin(t * Math.PI / 2) * 8;
+        // 弧度，模拟转弯惯性
+        const arcCurve = Math.sin(t * Math.PI / 2) * 10;
         
         points.push({
-            x: currentX - arcCurve, 
-            y: currentY + (Math.random()*2 - 1)
+            x: currentX - arcCurve + (Math.random()*2-1), 
+            y: currentY + (Math.random()*2-1)
         });
     }
     return points;
@@ -216,7 +194,7 @@ function generateNaturalEntry(target) {
 
 
 // ==========================================
-// 2. 核心绘制逻辑 (线宽8px)
+// 2. 核心绘制逻辑 (保持8px粗细，逻辑不变)
 // ==========================================
 function drawDataHighFidelity(ctx, canvasWidth, canvasHeight, data) {
     return new Promise((resolve) => {
@@ -314,7 +292,7 @@ function drawMarker(ctx, x, y, color, scale) {
 // 3. 主界面入口
 // ==========================================
 async function drawMine(ignoredUrl) {
-    console.log("本地生成：修复横穿线版...");
+    console.log("本地生成：最终重构版...");
     let bgSrc = "";
     if (typeof tmp_bgimg_osrc !== 'undefined' && tmp_bgimg_osrc) bgSrc = tmp_bgimg_osrc;
     else if (typeof use_default_bg !== 'undefined' && use_default_bg) bgSrc = default_bgSRC[1];
