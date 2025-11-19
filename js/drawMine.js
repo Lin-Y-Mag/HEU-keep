@@ -15,7 +15,7 @@ function generateLocalTrackData() {
     const LENGTH = 115;   // 直道长度 (原106 -> 115)
     const ROTATE = -4;    // 倾斜角度
     const BASE_R = 61;    // 半径 (原56 -> 61)
-    const STEP = 5;       // 步长加密一点，让抖动更细腻
+    const STEP = 15;       // 步长加密一点，让抖动更细腻
 
     let allPoints = [];
     
