@@ -66,7 +66,7 @@
             <div class="header-container">
                 <button onclick="Download(Download1)" class="one_click">⬇️ 保存图片</button>
                 <button onclick="Download(Download2)" class="one_click">👁️ 预览效果</button>
-                <button onclick="drawMine('https://tool.joytion.cn/generate-track')" class="flush-btn">🔄 随机路径</button>
+                <button onclick="drawMine()" class="flush-btn">🔄 随机路径</button>
                 <button onclick="storeToIndexedDB(tmp_portrait_src,tmp_bgimg_osrc)" class="storeToIndexedDB-btn" title="保存用户名、头像等常用信息到浏览器">💾 保存设置</button>
                 <button onclick="clearIndexedDB()" class="clear-btn">🗑️ 重置所有</button>
             </div>
@@ -237,7 +237,7 @@
                         </div>
                     </div>
                     <div style="margin-top: 15px;">
-                        <button onclick="Json2Draw('https://tool.joytion.cn/generate-track')" class="flush-btn">🎲 随机生成</button>
+                        <button onclick="Json2Draw()" class="flush-btn">🎲 随机生成</button>
                         <button onclick="drawpic_initbtn_onClick()" class="init-btn">清空画布</button>
                         <div style="height: 10px;"></div>
                         <button onclick="drawpic_hidebtn_onClick()">取消</button>
