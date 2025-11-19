@@ -1,5 +1,6 @@
 /**
- * drawMine.js (步长15 + 右上角起点 + 随机进场)
+ * drawMine.js (自然进场优化版)
+ * 修复：进场线改为右上角自然的“小尾巴”，顺势切入跑道
  */
 
 // ==========================================
@@ -12,9 +13,7 @@ function generateLocalTrackData() {
     const LENGTH = 115;   
     const ROTATE = -4;    
     const BASE_R = 61;    
-    
-    // ✅ 修改点1：步长改为 15 (折线感更强，更像真实GPS)
-    const STEP = 15;       
+    const STEP = 15; // 保持大步长，保留真实感      
 
     let allPoints = [];
     
@@ -22,7 +21,7 @@ function generateLocalTrackData() {
     const laps = Math.floor(Math.random() * 4) + 5; 
 
     for (let i = 0; i < laps; i++) {
-        // 每一圈的随机扰动
+        // 随机扰动
         const r_noise = (Math.random() * 6 - 3); 
         const cy_noise = (Math.random() * 4 - 2);
         const cx_noise = (Math.random() * 2 - 1);
@@ -40,23 +39,27 @@ function generateLocalTrackData() {
     const cutIndex = Math.floor(endLapPoints.length * 0.3 + Math.random() * (endLapPoints.length * 0.3));
     allPoints = allPoints.concat(endLapPoints.slice(0, cutIndex));
 
-    // ✅ 修改点2：强制将起点移至“右上角”
-    // 原理：生成的点默认从左上角开始，我们计算出第一条直道(Top Straight)的点数，将数组向前滚动
+    // ✅ 关键修改1：精准定位跑道起点到“右上角”
+    // 跑道生成顺序是：上直道(左->右) -> 右弯道 -> ...
+    // 上直道结束的点，就是右上角
     const pointsPerStraight = Math.floor(LENGTH / STEP);
-    // 移动索引，使其刚好落在直道结束、弯道开始的地方 (右上)
-    const shiftIndex = pointsPerStraight + 1; 
+    // 我们让起点稍微往弯道里走一点点，这样衔接更自然
+    const shiftIndex = pointsPerStraight + 2; 
     
-    // 数组轮转：把前面的点移到最后面，实现起点的改变但保持轨迹连续
+    // 数组轮转
     if (allPoints.length > shiftIndex) {
         const part1 = allPoints.slice(0, shiftIndex);
         const part2 = allPoints.slice(shiftIndex);
         allPoints = part2.concat(part1);
     }
 
-    // ✅ 修改点3：随机进场路线 (目标是新的起点 allPoints[0])
-    // 生成一条从场外连到当前起点的线
+    // ✅ 关键修改2：生成自然的“小尾巴”进场线
+    // 目标点是跑道的现在的起点（右上角）
     const startTarget = allPoints[0];
-    const extraStart = generateEntryLine(startTarget);
+    // 参考点是跑道的第二个点，用于计算切入角度
+    const nextPoint = allPoints[1];
+    
+    const extraStart = generateNaturalEntry(startTarget, nextPoint);
     
     let finalPoints = [...extraStart, ...allPoints];
 
@@ -73,9 +76,9 @@ function generateLocalTrackData() {
         let finalX = rx + BASE_CX;
         let finalY = ry + BASE_CY;
         
-        // GPS 噪点 (步长大了，噪点稍微收一点点，不然太乱)
-        const noiseX = Math.random() * 2.0 - 1.0;
-        const noiseY = Math.random() * 2.0 - 1.0;
+        // GPS 噪点
+        const noiseX = Math.random() * 2.2 - 1.1;
+        const noiseY = Math.random() * 2.2 - 1.1;
 
         return {
             action: index === 0 ? 'down' : 'move',
@@ -129,45 +132,53 @@ function generateEllipse(cx, cy, length, r, step) {
     return points;
 }
 
-// ✅ 修改点4：随机进场线条生成器
-function generateEntryLine(targetPoint) {
+// ✅ 新增：自然的进场“小尾巴”生成器
+function generateNaturalEntry(target, nextPoint) {
     let points = [];
-    const numPoints = 5; // 进场点数不用太多
+    const numPoints = 6; // 短一点，不要太长
     
-    // 随机决定进场方向：大部分情况从上方或右方进入
-    // offsetX/Y 决定了"场外点"相对于"起点"的位置
-    let offsetX = (Math.random() * 60) + 20; // 偏右 20~80px
-    let offsetY = (Math.random() * 60) - 30; // 上下随机浮动
+    // 1. 确定场外起点 (Start Origin)
+    // 我们希望它在右上角的外侧 (郑和路方向)
+    // X轴：比目标点偏右 15px ~ 35px
+    // Y轴：比目标点偏上 20px ~ 40px
+    const offsetX = 15 + Math.random() * 20; 
+    const offsetY = -20 - Math.random() * 20;
     
-    // 如果随机到负数，就是从上方进来
-    if(Math.random() > 0.6) {
-        offsetX = (Math.random() * 40) - 20;
-        offsetY = -(Math.random() * 50 + 30); // 偏上
-    }
+    const startOrigin = {
+        x: target.x + offsetX,
+        y: target.y + offsetY
+    };
 
-    const startX = targetPoint.x + offsetX;
-    const startY = targetPoint.y + offsetY;
-
-    for(let i=0; i<numPoints; i++) {
-        // 线性插值，从场外慢慢连到起点
-        const t = i / numPoints; 
+    // 2. 生成贝塞尔曲线或平滑插值
+    // 从 startOrigin 慢慢弯向 target
+    // 模拟人跑进来的惯性
+    for(let i = 0; i < numPoints; i++) {
+        const t = i / numPoints; // 0 到 1
+        
+        // 简单的线性插值 + 垂直扰动模拟转弯弧度
+        // 这里的逻辑是：让线条不是直直的连过去，而是带一点弧度
+        let currentX = startOrigin.x + (target.x - startOrigin.x) * t;
+        let currentY = startOrigin.y + (target.y - startOrigin.y) * t;
+        
+        // 加一点点弧度修正 (向外鼓一点)
+        const arcCurve = Math.sin(t * Math.PI) * 5;
+        
         points.push({
-            x: startX + (targetPoint.x - startX) * t + (Math.random()*4-2),
-            y: startY + (targetPoint.y - startY) * t + (Math.random()*4-2)
+            x: currentX + arcCurve, 
+            y: currentY + (Math.random()*2 - 1) // 加上GPS抖动
         });
     }
+    
     return points;
 }
 
 
 // ==========================================
-// 2. 核心绘制逻辑 (保留之前的加粗)
+// 2. 核心绘制逻辑 (线宽8px)
 // ==========================================
 function drawDataHighFidelity(ctx, canvasWidth, canvasHeight, data) {
     return new Promise((resolve) => {
         const scale = canvasWidth / 360;
-
-        // 步长变大了，线条要足够粗才好看，保持 8px
         const LINE_WIDTH = 8 * scale; 
 
         let is_bs = false;
@@ -211,7 +222,7 @@ function drawDataHighFidelity(ctx, canvasWidth, canvasHeight, data) {
                         ctx.strokeStyle = gradient; ctx.stroke();
                         bs_pres_color = [38, 201, 154];
                     }
-                    if (!is_bs && Math.random() < bs_prob && index < data.length - 5) { // 索引稍微放宽，因为点少了
+                    if (!is_bs && Math.random() < bs_prob && index < data.length - 5) { 
                         is_bs = true;
                         let rg = 2 * Math.random() - 1;
                         if (rg > 0) bs_max = [Math.floor(193 * Math.pow(Math.abs(rg), 0.5)), Math.floor(-110 * Math.pow(Math.abs(rg), 0.5)), Math.floor(-66 * Math.pow(Math.abs(rg), 0.5))];
@@ -261,7 +272,7 @@ function drawMarker(ctx, x, y, color, scale) {
 // 3. 主界面入口
 // ==========================================
 async function drawMine(ignoredUrl) {
-    console.log("本地生成：绘制步长15版...");
+    console.log("本地生成：自然进场优化版...");
     let bgSrc = "";
     if (typeof tmp_bgimg_osrc !== 'undefined' && tmp_bgimg_osrc) bgSrc = tmp_bgimg_osrc;
     else if (typeof use_default_bg !== 'undefined' && use_default_bg) bgSrc = default_bgSRC[1];
