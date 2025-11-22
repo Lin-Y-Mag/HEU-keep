@@ -18,8 +18,108 @@
     <title>HEU人最后的倔强 ver.Liquid</title>
     <link rel="icon" href="./favicon.ico">
     <link rel="shortcut icon" href="./favicon.ico">
-    <link rel="stylesheet" href="./css/0.css">
-    <link rel="preload" href="./DINCond-Bold.otf" as="font" type="font/otf" crossorigin>
+    <link rel="stylesheet" href="./css/liquid.css">
+        <link rel="preload" href="./DINCond-Bold.otf" as="font" type="font/otf" crossorigin>
+            <style>
+                /* =========================================
+                   iOS 移动端布局专项修复 (Ver 2.0)
+                   ========================================= */
+
+                /* 1. 样式选择框修复 */
+                .flex-group select {
+                    flex: 0 1 auto !important;
+                    width: fit-content !important;
+                    min-width: 60px;
+                    max-width: 65%; /* 稍微给大一点点 */
+                    padding-right: 25px !important;
+                }
+                
+                .flex-group button {
+                    flex-shrink: 0 !important;
+                    white-space: nowrap;
+                }
+
+                /* 2. 标题输入框修复 */
+                .input-with-prefix {
+                    display: inline-flex !important;
+                    width: auto !important;
+                    flex-wrap: nowrap !important;
+                    /* 移除 max-width 限制，允许它撑开，父级通常会自动处理溢出 */
+                }
+                /* =========================================
+                   3. 时间/日期小输入框专项修复
+                   ========================================= */
+                /* 针对 年/月/日/时/分/温湿度 的微型输入框 */
+                .time-inp, .year-inp, .date-inp, .mini-input, #inpt_temperature, #inpt_humidity {
+                    padding: 0 2px !important;   /* 极小的内边距 */
+                    min-width: 25px !important;  /* 允许缩得非常小 */
+                    text-align: center !important; /* 文字居中 */
+                    width: auto;
+                }
+
+                /* 稍微给年份宽一点点，因为是4位数 */
+                .year-inp {
+                    min-width: 40px !important;
+                }
+                /* =========================================
+                       4. 极致紧凑布局修复 (缩减标签空隙)
+                       ========================================= */
+                    
+                    /* 1. 针对每一行的容器：减小 Flex 间距 */
+                    .setDataList li {
+                        gap: 4px !important;          /* 原本可能是 10px 或 15px，现在改为 4px */
+                        justify-content: flex-start;  /* 强制内容靠左，不分散对齐 */
+                    }
+
+                    /* 2. 针对标签 (Label)：取消固定宽度，改为“文字多宽就多宽” */
+                    .setDataList li label {
+                        min-width: 0 !important;      /* 核心：取消 80px 的强制占位 */
+                        width: auto !important;       /* 核心：宽度由文字内容决定 */
+                        flex: 0 0 auto !important;    /* 禁止被压缩或拉伸 */
+                        margin-right: 2px !important; /* 标签和输入框之间只留 2px 缝隙 */
+                        text-align: right;            /* (可选) 文字靠右对齐 */
+                    }
+
+                    /* 3. 针对带前缀的框 (keep • 户外跑步) */
+                    .input-with-prefix {
+                        gap: 2px !important;          /* 缩减 "keep •" 和输入框之间的距离 */
+                    }
+                    
+                    /* 微调前缀文字的边距 */
+                    .prefix {
+                        margin-right: 0 !important;
+                        padding-right: 2px !important;
+                    }
+                /* =========================================
+                       5. 强制里程与配速输入框文字居中
+                       ========================================= */
+                    
+                    /* 针对 里程(#inpt_miles) 和 配速(#inpt_speeds) 主输入框 */
+                    #inpt_miles,
+                    #inpt_speeds,
+                    #inpt_savePic_width,
+                    .mile2-inp {
+                        text-align: center !important; /* 强制覆盖默认的左对齐 */
+                        padding: 0 5px !important;     /* 稍微修正内边距 */
+                    }
+
+                    /* (可选) 如果下面的随机范围小框也没居中，加上这个 */
+                    .range-input {
+                        text-align: center !important;
+                    }
+
+                .input-with-prefix input {
+                    /* 核心：禁止被 Flex 布局挤压 */
+                    flex-shrink: 0 !important;
+                    flex-grow: 0 !important;
+                    
+                    /* 核心：允许根据 JS 设置的 width 生效 */
+                    width: auto;
+                    
+                    /* 保底宽度，防止还没加载出来时太丑 */
+                    min-width: 80px !important;
+                }
+            </style>
 </head>
 
 <body id="body">
@@ -30,12 +130,14 @@
     <div class="liquid-orb orb-2"></div>
 
     <div id="main-div">
-        <!-- 左侧：手机预览 -->
+        <!-- 左侧：手机预览 (被克隆的目标) -->
         <div id="new-Img" class="new-img glass-effect">
             <div class="bgimgwrap" id="bgimgwrap">
                 <img src="" class="innerbgimg" id="bg-img" alt="" />
             </div>
+            <!-- 这里的 gui-img 可能是 canvas 绘图，克隆时需要特殊处理 -->
             <img src="" id="gui-img" alt="" />
+            
             <div class="portrait-wrap" id="portrait-wrap">
                 <img class="portrait" id="portrait" src="" alt="" />
             </div>
@@ -58,11 +160,14 @@
         <div class="set-data">
             <div id="messageBox"></div>
 
+            <!-- 导出控制区 -->
             <div class="glass-card export-panel">
                 <div class="export-grid">
+                    <!-- 这里的 Download1 是外部JS定义的函数，我们会兼容它 -->
                     <button onclick="Download(Download1)" class="btn-primary main-save">
                         <span class="icon"></span> 保存高清图片
                     </button>
+                    <!-- 预览等按钮保留原有逻辑 -->
                     <button onclick="Download(Download2)" class="btn-secondary main-preview">
                         <span class="icon"></span> 预览
                     </button>
@@ -70,9 +175,10 @@
                 </div>
             </div>
 
+            <!-- 主设置面板 -->
             <div class="glass-card control-panel">
                 <ul class="setDataList">
-                    <!-- 基本信息 -->
+                    <!-- 用户信息 -->
                     <div class="input-group">
                         <div class="group-title">基本信息</div>
                         <li>
@@ -100,8 +206,8 @@
                     <div class="input-group">
                         <div class="group-title">运动数据</div>
                         <li>
-                            <label>里程 (km)</label>
-                            <input id="inpt_miles" onchange="setData()" type="text" placeholder="0.00">
+                            <label>里程</label>
+                            <input id="inpt_miles" onchange="setData()" type="text" class="font-mono" placeholder="0.00">
                         </li>
                         <div class="sub-setting">
                             <span class="sub-label">随机范围:</span>
@@ -112,7 +218,7 @@
 
                         <li style="margin-top: 12px;">
                             <label>配速</label>
-                            <input id="inpt_speeds" onchange="setData()" type="text" placeholder="5'30&quot;">
+                            <input id="inpt_speeds" onchange="setData()" type="text" class="font-mono" placeholder="5'30&quot;">
                         </li>
                         <div class="sub-setting">
                             <span class="sub-label">随机范围:</span>
@@ -177,7 +283,7 @@
 
                         <li>
                             <label>样式</label>
-                            <div class="flex-group">
+                            <div class="flex-group" style="display:flex; gap:8px; align-items:center; flex:1;">
                                 <select onchange="guijiSelect_onChange()" id="guiji_Select_1" class="guijiSelect">
                                     <option value="['images/bg1_1.png', 'images/bg1_empty2.png']">样式 1</option>
                                     <option value="['images/bg1_2.png', 'images/bg1_empty2.png']">样式 2</option>
@@ -187,6 +293,12 @@
                                     <option value="['images/bg1_empty2.png', 'images/bg1_empty2.png']">默认</option>
                                 </select>
                                 <button onclick="drawMine()" class="btn-small btn-secondary" title="生成随机路径">随机</button>
+                                <select onchange="guijiSelect_onChange()" id="guiji_Select_2" class="guijiSelect" style="display:none;">
+                                    <option value="['images/bg2_empty.png', 'images/bg2_empty.png']">默认</option>
+                                </select>
+                                <select onchange="guijiSelect_onChange()" id="guiji_Select_3" class="guijiSelect" style="display:none;">
+                                    <option value="['images/bg3_empty.png', 'images/bg3_empty.png']">默认</option>
+                                </select>
                             </div>
                         </li>
 
@@ -212,13 +324,15 @@
                         </div>
                     </div>
 
+                    <!-- 输出尺寸 -->
                     <div class="input-group no-border">
                         <li>
                             <label>宽度</label>
-                            <input id="inpt_savePic_width" onchange="setData()" type="text" placeholder="默认">
+                            <input id="inpt_savePic_width" onchange="setData()" type="text" placeholder="默认" style="min-width:50px;">
                             <span class="unit">px</span>
                         </li>
                     </div>
+
                 </ul>
 
                 <div class="divider"></div>
@@ -230,6 +344,7 @@
         </div>
     </div>
 
+    <!-- JS 引用 -->
     <script src="js/invoke/html2canvas.min.js" defer></script>
     <script src="js/invoke/amapHelper.js" defer></script>
     <script src="js/indexedDB.js" defer></script>
@@ -239,122 +354,211 @@
     <script src="js/dataURLtoBlob.js" defer></script>
     <script src="js/img_both_inpt_set.js" defer></script>
     <script src="js/draw_personalization.js" defer></script>
+    <!-- 注意：download_img.js 里的函数会被下面的脚本覆盖，这是正常的 -->
     <script src="js/download_img.js" defer></script>
     <script src="js/localTrackGen.js"></script>
     <script src="js/drawMine.js" defer></script>
     <script src="js/onload.js" defer></script>
+    <!-- ✅ 性能优化版：iOS 输入框自适应宽度脚本 -->
+        <script>
+            // 1. Canvas 上下文单例 (避免重复创建对象)
+            const measureCtx = (function() {
+                const canvas = document.createElement("canvas");
+                return canvas.getContext("2d");
+            })();
 
-    <!-- 🌟 脚本更新：修复天气API不触发宽度更新的问题 -->
-    <script>
-        function adjustInputWidth(elem) {
-            let canvas = adjustInputWidth.canvas || (adjustInputWidth.canvas = document.createElement("canvas"));
-            let context = canvas.getContext("2d");
-            let style = window.getComputedStyle(elem);
-            context.font = style.font;
-            let text = elem.value || elem.placeholder || "";
-            let metrics = context.measureText(text);
-            
-            // 宽松宽度计算 (+35px 余量)
-            let finalWidth = Math.ceil(metrics.width) + 35; 
-            elem.style.width = finalWidth + "px";
-        }
+            // 缓存计算出的字体字符串，避免重复读取 DOM (可选优化，视情况而定，这里为了准确性每次读取)
+            function getCanvasFont(elem) {
+                const style = window.getComputedStyle(elem);
+                // 简化获取逻辑
+                return `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+            }
 
-        function initAutoWidth() {
-            const allInputs = document.querySelectorAll('input[type="text"]');
-            allInputs.forEach(input => {
-                adjustInputWidth(input);
-                input.addEventListener('input', function() {
-                    adjustInputWidth(this);
+            // 2. 核心宽度计算 (无 DOM 写入，纯计算)
+            function calculateWidth(elem) {
+                measureCtx.font = getCanvasFont(elem);
+                // 优先取 value -> placeholder -> 空串
+                const text = elem.value || elem.placeholder || "";
+                const metrics = measureCtx.measureText(text);
+                
+                // 智能留白逻辑
+                const isMini = elem.classList.contains('time-inp') ||
+                               elem.classList.contains('year-inp') ||
+                               elem.classList.contains('date-inp') ||
+                               elem.classList.contains('mini-input') ||
+                               elem.id === 'inpt_temperature' ||
+                               elem.id === 'inpt_humidity';
+
+                const extraSpace = isMini ? 15 : 35;
+                return Math.ceil(metrics.width) + extraSpace;
+            }
+
+            // 3. 高性能更新队列 (使用 rAF 避免掉帧)
+            let updateQueue = new Set();
+            let isTicking = false;
+
+            function requestUpdate(elem) {
+                updateQueue.add(elem);
+                if (!isTicking) {
+                    requestAnimationFrame(flushQueue);
+                    isTicking = true;
+                }
+            }
+
+            function flushQueue() {
+                updateQueue.forEach(elem => {
+                    const newWidth = calculateWidth(elem);
+                    // 只有宽度真正变化时才写入 DOM
+                    if (elem.style.width !== `${newWidth}px`) {
+                        elem.style.width = `${newWidth}px`;
+                    }
+                });
+                updateQueue.clear();
+                isTicking = false;
+            }
+
+            // 4. 初始化与事件委托 (极大的内存优化)
+            function initAutoWidth() {
+                // 立即计算一次所有框
+                document.querySelectorAll('input[type="text"]').forEach(requestUpdate);
+
+                // 使用事件委托，只在父容器 .set-data 上监听
+                const container = document.querySelector('.set-data');
+                if (!container) return;
+
+                container.addEventListener('input', (e) => {
+                    if (e.target.tagName === 'INPUT' && e.target.type === 'text') {
+                        requestUpdate(e.target);
+                    }
+                });
+                
+                // blur 事件不冒泡，focusout 冒泡
+                container.addEventListener('focusout', (e) => {
+                    if (e.target.tagName === 'INPUT' && e.target.type === 'text') {
+                        requestUpdate(e.target);
+                    }
+                });
+            }
+
+            // 5. API 赋值劫持 (保持不变，但接入 rAF 系统)
+            function fixWeatherApiWidth() {
+                const targetIds = ['inpt_temperature', 'inpt_humidity', 'inpt_keep_title', 'inpt_username', 'inpt_year', 'inpt_month', 'inpt_day', 'inpt_hour', 'inpt_min'];
+                targetIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+                        Object.defineProperty(el, 'value', {
+                            get: function() { return descriptor.get.call(this); },
+                            set: function(v) {
+                                descriptor.set.call(this, v);
+                                requestUpdate(this); // 接入高性能更新队列
+                            }
+                        });
+                    }
+                });
+            }
+
+            window.addEventListener('DOMContentLoaded', function() {
+                fixWeatherApiWidth();
+                initAutoWidth();
+
+                // 终极延迟检查
+                document.fonts.ready.then(() => {
+                    setTimeout(() => {
+                        document.querySelectorAll('input[type="text"]').forEach(requestUpdate);
+                        console.log("🚀 High-perf width adjustment ready.");
+                    }, 500);
                 });
             });
-        }
-
-        // 【关键修复】专门监听天气输入框的赋值操作
-        function fixWeatherApiWidth() {
-            const targetIds = ['inpt_temperature', 'inpt_humidity'];
-            targetIds.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    // 拦截 value 属性的 setter
-                    const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
-                    Object.defineProperty(el, 'value', {
-                        get: function() {
-                            return descriptor.get.call(this);
-                        },
-                        set: function(v) {
-                            descriptor.set.call(this, v);
-                            // 一旦被 JS 赋值，立即刷新宽度
-                            adjustInputWidth(this); 
-                        }
-                    });
-                }
-            });
-        }
-
+        </script>
+    <!-- 🌟 终极修复：离屏克隆生成器 -->
+    <script>
         window.addEventListener('load', function() {
-            // 先拦截天气API
-            fixWeatherApiWidth();
-            // 再初始化通用宽度
-            initAutoWidth();
-            
-            console.log("Liquid UI: Weather API monitoring & Auto-width initialized.");
+            console.log("Liquid Fix: Off-screen renderer loaded.");
 
+            // 覆盖原有的 Download 函数
             window.Download = function(fileNameArg) {
                 const targetNode = document.getElementById('new-Img');
                 if (!targetNode) return;
 
+                // 1. 创建幽灵容器 (Ghost Container)
+                // 这个容器位于屏幕外，用于放置我们的克隆体
                 const ghostWrapper = document.createElement('div');
                 ghostWrapper.style.position = 'fixed';
                 ghostWrapper.style.top = '-9999px';
                 ghostWrapper.style.left = '-9999px';
                 ghostWrapper.style.zIndex = '-1000';
+                // 锁定宽度，防止因容器变化导致内容换行
                 ghostWrapper.style.width = targetNode.offsetWidth + 'px';
                 document.body.appendChild(ghostWrapper);
 
+                // 2. 深度克隆节点
                 const clonedNode = targetNode.cloneNode(true);
+
+                // 3. 关键：手动重绘 Canvas 内容
+                // cloneNode 不会复制 canvas 的绘图状态，必须手动把原图画过去
                 const originalCanvases = targetNode.querySelectorAll('canvas');
                 const clonedCanvases = clonedNode.querySelectorAll('canvas');
                 originalCanvases.forEach((orig, index) => {
                     if (clonedCanvases[index]) {
                         const destCtx = clonedCanvases[index].getContext('2d');
+                        // 确保尺寸一致
                         clonedCanvases[index].width = orig.width;
                         clonedCanvases[index].height = orig.height;
                         destCtx.drawImage(orig, 0, 0);
                     }
                 });
 
-                clonedNode.style.transform = 'none';
-                clonedNode.style.boxShadow = 'none';
-                clonedNode.style.margin = '0';
-                clonedNode.style.transition = 'none';
+                // 4. 净化克隆体样式
+                // 这里移除所有导致 html2canvas 崩溃的特效
+                clonedNode.style.transform = 'none';       // 移除缩放
+                clonedNode.style.boxShadow = 'none';       // 移除阴影
+                clonedNode.style.margin = '0';             // 移除边距
+                clonedNode.style.transition = 'none';      // 移除动画
+                
+                // 确保背景正确 (防止背景透明变黑)
+                if (getComputedStyle(targetNode).backgroundColor === 'rgba(0, 0, 0, 0)') {
+                   // 如果原背景透明，保持透明或设为白色，视需求而定
+                }
 
                 ghostWrapper.appendChild(clonedNode);
 
+                // 5. 确定文件名
                 let fileName = "HEU_Run_" + new Date().toISOString().slice(0,10) + ".png";
+                // 兼容原代码传入的 Download1 函数或字符串
                 if (typeof fileNameArg === 'function') {
                     try { fileName = fileNameArg(); } catch (e) {}
                 } else if (typeof fileNameArg === 'string') {
                     fileName = fileNameArg;
                 }
+                // 确保后缀名
                 if (!fileName.endsWith('.png')) fileName += '.png';
 
+                // 6. 调用 html2canvas
+                // 因为克隆体没有特效，这里渲染会非常快且准确
                 html2canvas(clonedNode, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: null,
+                    scale: 2,          // 2倍高清
+                    useCORS: true,     // 跨域支持
+                    backgroundColor: null, // 保持透明背景
                     logging: false
                 }).then(canvas => {
+                    // 7. 触发下载
                     const link = document.createElement('a');
                     link.href = canvas.toDataURL('image/png');
                     link.download = fileName;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+                    
+                    // 8. 清理
                     document.body.removeChild(ghostWrapper);
+                    console.log("Download success.");
                 }).catch(err => {
                     console.error("生成失败:", err);
-                    alert("生成失败，请检查网络");
-                    if (document.body.contains(ghostWrapper)) document.body.removeChild(ghostWrapper);
+                    alert("生成失败，请检查网络或图片跨域设置");
+                    if (document.body.contains(ghostWrapper)) {
+                        document.body.removeChild(ghostWrapper);
+                    }
                 });
             };
         });
