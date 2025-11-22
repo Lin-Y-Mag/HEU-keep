@@ -20,6 +20,60 @@
     <link rel="shortcut icon" href="./favicon.ico">
     <link rel="stylesheet" href="./css/liquid.css">
     <link rel="preload" href="./DINCond-Bold.otf" as="font" type="font/otf" crossorigin>
+
+    <!-- 🌟 iOS 样式修复补丁 + 玻璃质感增强 -->
+    <style>
+        /* 1. 暴力去除 iOS 默认表单样式 */
+        input, select, textarea, button {
+            -webkit-appearance: none !important; /* 核心代码：去除系统默认外观 */
+            appearance: none !important;
+            outline: none !important;
+            box-shadow: none !important; /* 去除 iOS 聚焦时的阴影 */
+        }
+
+        /* 2. 强制统一样式 (深色玻璃感) */
+        .setDataList input, 
+        .setDataList select, 
+        .mini-input,
+        .year-inp, .date-inp, .time-inp,
+        #inpt_username, #inpt_keep_title {
+            background-color: rgba(255, 255, 255, 0.08) !important; /* 强制半透明背景 */
+            border: 1px solid rgba(255, 255, 255, 0.15) !important; /* 细微边框 */
+            color: #fff !important; /* 强制文字白色 */
+            border-radius: 12px !important; /* 统一圆角 */
+            backdrop-filter: blur(5px); /* 增加磨砂感 */
+            padding: 8px 12px !important; /* 统一内边距 */
+        }
+
+        /* 3. 修复 Placeholder (提示文字) 颜色 */
+        ::placeholder {
+            color: rgba(255, 255, 255, 0.4) !important;
+        }
+        ::-webkit-input-placeholder {
+            color: rgba(255, 255, 255, 0.4) !important;
+        }
+
+        /* 4. 修复下拉菜单在 iOS 上没有箭头的问题 */
+        select {
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 10px center !important;
+            background-size: 12px !important;
+            padding-right: 30px !important; /* 给箭头留位置 */
+        }
+
+        /* 5. 按钮样式统一 */
+        button {
+            -webkit-tap-highlight-color: transparent; /* 去除点击高亮色块 */
+        }
+        
+        /* 6. 修复小屏幕下输入框高度不一致 */
+        .mini-input {
+            height: 36px !important;
+            line-height: normal !important;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body id="body">
@@ -35,7 +89,6 @@
             <div class="bgimgwrap" id="bgimgwrap">
                 <img src="" class="innerbgimg" id="bg-img" alt="" />
             </div>
-            <!-- 这里的 gui-img 可能是 canvas 绘图，克隆时需要特殊处理 -->
             <img src="" id="gui-img" alt="" />
             
             <div class="portrait-wrap" id="portrait-wrap">
@@ -63,11 +116,9 @@
             <!-- 导出控制区 -->
             <div class="glass-card export-panel">
                 <div class="export-grid">
-                    <!-- 这里的 Download1 是外部JS定义的函数，我们会兼容它 -->
                     <button onclick="Download(Download1)" class="btn-primary main-save">
                         <span class="icon"></span> 保存高清图片
                     </button>
-                    <!-- 预览等按钮保留原有逻辑 -->
                     <button onclick="Download(Download2)" class="btn-secondary main-preview">
                         <span class="icon"></span> 预览
                     </button>
@@ -254,84 +305,65 @@
     <script src="js/dataURLtoBlob.js" defer></script>
     <script src="js/img_both_inpt_set.js" defer></script>
     <script src="js/draw_personalization.js" defer></script>
-    <!-- 注意：download_img.js 里的函数会被下面的脚本覆盖，这是正常的 -->
     <script src="js/download_img.js" defer></script>
     <script src="js/localTrackGen.js"></script>
     <script src="js/drawMine.js" defer></script>
     <script src="js/onload.js" defer></script>
 
-    <!-- 🌟 终极修复：离屏克隆生成器 -->
+    <!-- 🌟 终极修复：离屏克隆生成器 (保持之前的好用功能) -->
     <script>
         window.addEventListener('load', function() {
             console.log("Liquid Fix: Off-screen renderer loaded.");
 
-            // 覆盖原有的 Download 函数
             window.Download = function(fileNameArg) {
                 const targetNode = document.getElementById('new-Img');
                 if (!targetNode) return;
 
-                // 1. 创建幽灵容器 (Ghost Container)
-                // 这个容器位于屏幕外，用于放置我们的克隆体
                 const ghostWrapper = document.createElement('div');
                 ghostWrapper.style.position = 'fixed';
                 ghostWrapper.style.top = '-9999px';
                 ghostWrapper.style.left = '-9999px';
                 ghostWrapper.style.zIndex = '-1000';
-                // 锁定宽度，防止因容器变化导致内容换行
                 ghostWrapper.style.width = targetNode.offsetWidth + 'px';
                 document.body.appendChild(ghostWrapper);
 
-                // 2. 深度克隆节点
                 const clonedNode = targetNode.cloneNode(true);
 
-                // 3. 关键：手动重绘 Canvas 内容
-                // cloneNode 不会复制 canvas 的绘图状态，必须手动把原图画过去
                 const originalCanvases = targetNode.querySelectorAll('canvas');
                 const clonedCanvases = clonedNode.querySelectorAll('canvas');
                 originalCanvases.forEach((orig, index) => {
                     if (clonedCanvases[index]) {
                         const destCtx = clonedCanvases[index].getContext('2d');
-                        // 确保尺寸一致
                         clonedCanvases[index].width = orig.width;
                         clonedCanvases[index].height = orig.height;
                         destCtx.drawImage(orig, 0, 0);
                     }
                 });
 
-                // 4. 净化克隆体样式
-                // 这里移除所有导致 html2canvas 崩溃的特效
-                clonedNode.style.transform = 'none';       // 移除缩放
-                clonedNode.style.boxShadow = 'none';       // 移除阴影
-                clonedNode.style.margin = '0';             // 移除边距
-                clonedNode.style.transition = 'none';      // 移除动画
+                clonedNode.style.transform = 'none';
+                clonedNode.style.boxShadow = 'none';
+                clonedNode.style.margin = '0';
+                clonedNode.style.transition = 'none';
                 
-                // 确保背景正确 (防止背景透明变黑)
                 if (getComputedStyle(targetNode).backgroundColor === 'rgba(0, 0, 0, 0)') {
-                   // 如果原背景透明，保持透明或设为白色，视需求而定
                 }
 
                 ghostWrapper.appendChild(clonedNode);
 
-                // 5. 确定文件名
                 let fileName = "HEU_Run_" + new Date().toISOString().slice(0,10) + ".png";
-                // 兼容原代码传入的 Download1 函数或字符串
                 if (typeof fileNameArg === 'function') {
                     try { fileName = fileNameArg(); } catch (e) {}
                 } else if (typeof fileNameArg === 'string') {
                     fileName = fileNameArg;
                 }
-                // 确保后缀名
                 if (!fileName.endsWith('.png')) fileName += '.png';
 
-                // 6. 调用 html2canvas
-                // 因为克隆体没有特效，这里渲染会非常快且准确
                 html2canvas(clonedNode, {
-                    scale: 2,          // 2倍高清
-                    useCORS: true,     // 跨域支持
-                    backgroundColor: null, // 保持透明背景
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: null,
                     logging: false
                 }).then(canvas => {
-                    // 7. 触发下载
                     const link = document.createElement('a');
                     link.href = canvas.toDataURL('image/png');
                     link.download = fileName;
@@ -339,7 +371,6 @@
                     link.click();
                     document.body.removeChild(link);
                     
-                    // 8. 清理
                     document.body.removeChild(ghostWrapper);
                     console.log("Download success.");
                 }).catch(err => {
