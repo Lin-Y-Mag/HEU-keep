@@ -20,6 +20,78 @@
     <link rel="shortcut icon" href="./favicon.ico">
     <link rel="stylesheet" href="./css/liquid.css">
     <link rel="preload" href="./DINCond-Bold.otf" as="font" type="font/otf" crossorigin>
+
+    <!-- 🌟 Liquid Glass 样式增强补丁 -->
+    <style>
+        /* 1. 核心：去除 iOS 默认白色样式，赋予玻璃质感 */
+        input:not([type="checkbox"]):not([type="file"]), 
+        select {
+            -webkit-appearance: none !important; /* 去除 iOS 默认外观 */
+            appearance: none !important;
+            background-color: rgba(255, 255, 255, 0.05) !important; /* 深色半透明背景 */
+            backdrop-filter: blur(5px); /* 磨砂效果 */
+            border: 1px solid rgba(255, 255, 255, 0.1) !important; /* 极细的亮边框 */
+            color: #fff !important; /* 强制白字 */
+            border-radius: 8px !important;
+            outline: none !important;
+            padding: 5px 10px !important;
+            font-family: inherit;
+        }
+
+        /* 2. 针对 Keep 标题栏的特殊优化 (防止框中框) */
+        /* 外层容器：负责显示玻璃效果 */
+        .input-with-prefix {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(5px);
+            border-radius: 8px !important;
+            display: flex;
+            align-items: center;
+            padding: 5px 10px !important;
+        }
+        /* 内部输入框：完全透明，去除边框 */
+        .input-with-prefix input {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin-left: 5px;
+            width: 100%;
+            backdrop-filter: none !important;
+        }
+
+        /* 3. 修复下拉菜单 (Select) 的箭头 */
+        select {
+            /* 使用白色 SVG 箭头替换系统默认箭头 */
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.6)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 8px center !important;
+            background-size: 12px !important;
+            padding-right: 25px !important; /* 给箭头留位置 */
+        }
+
+        /* 4. 提示文字颜色优化 */
+        ::placeholder { color: rgba(255, 255, 255, 0.3) !important; }
+        ::-webkit-input-placeholder { color: rgba(255, 255, 255, 0.3) !important; }
+
+        /* 5. 保护开关 (Checkbox) 不受影响 */
+        input[type="checkbox"] {
+            -webkit-appearance: checkbox !important; 
+            appearance: auto !important;
+            background: transparent !important;
+            border: none !important;
+        }
+
+        /* 6. 小尺寸输入框微调 */
+        .mini-input {
+            text-align: center;
+        }
+        
+        /* 7. 日期时间输入框微调 */
+        .datetime-row input {
+            text-align: center;
+            padding: 5px 2px !important;
+        }
+    </style>
 </head>
 
 <body id="body">
@@ -95,6 +167,7 @@
                         </li>
                         <li>
                             <label>标题</label>
+                            <!-- 注意：这里 class 是 input-with-prefix，我们在 CSS 里专门处理了它 -->
                             <div class="input-with-prefix">
                                 <span class="prefix">keep • </span>
                                 <input id="inpt_keep_title" onchange="setData()" type="text" placeholder="户外跑步">
