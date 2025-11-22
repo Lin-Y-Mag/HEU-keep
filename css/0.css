@@ -4,7 +4,6 @@
    1. Design Tokens (配色与参数)
    ========================================= */
 :root {
-    /* --- 浅色模式 (Light) --- */
     --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
     
     /* 玻璃材质 */
@@ -17,12 +16,12 @@
     --text-main: #1d1d1f;
     --text-sub: #5c5c63;
     
-    /* 输入框 & 按钮 */
+    /* 输入框 */
     --input-bg: rgba(255, 255, 255, 0.2);
     --input-bg-hover: rgba(255, 255, 255, 0.4);
     --input-border: rgba(255, 255, 255, 0.3);
     
-    /* 按钮背景 */
+    /* 按钮 */
     --btn-bg: rgba(255, 255, 255, 0.3);
     --btn-bg-hover: rgba(255, 255, 255, 0.6);
     
@@ -37,7 +36,7 @@
     --radius-elem: 14px;
 }
 
-/* --- 深色模式 (Dark Mode) --- */
+/* 深色模式 */
 @media (prefers-color-scheme: dark) {
     :root {
         --bg-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
@@ -90,7 +89,7 @@ body {
 }
 
 /* =========================================
-   3. 左侧预览 (保持原样)
+   3. 左侧预览
    ========================================= */
 .new-img {
     position: relative; width: 360px; height: 719px; background: #fff;
@@ -160,38 +159,50 @@ button {
 .backup-btn:hover { background: var(--btn-bg-hover); color: var(--text-main); }
 
 /* =========================================
-   5. 表单控件 (宽敞舒适版)
+   5. 表单控件
    ========================================= */
 .divider { height: 1px; background: var(--input-border); margin: 24px -28px; opacity: 0.3; }
 .input-group { margin-bottom: 24px; }
 .group-title { font-size: 12px; letter-spacing: 1px; color: var(--text-sub); margin-bottom: 12px; font-weight: 700; opacity: 0.8; }
 
-li { display: flex; align-items: center; margin-bottom: 14px; flex-wrap: nowrap; gap: 8px; }
-label { flex: 0 0 70px; font-size: 14px; color: var(--text-main); font-weight: 500; opacity: 0.9; white-space: nowrap; }
+li { 
+    display: flex; align-items: center; margin-bottom: 14px; 
+    /* 【修改】允许换行，防止拥挤 */
+    flex-wrap: wrap; 
+    /* 【修改】间距缩减，拉近标签和输入框 */
+    gap: 4px; 
+}
 
-/* 核心修改区域 */
+/* 【修改】标签宽度减小到 60px */
+label { flex: 0 0 60px; font-size: 14px; color: var(--text-main); font-weight: 500; opacity: 0.9; white-space: nowrap; }
+
+/* 输入框样式 */
 input[type="text"], select {
     height: 38px;
-    padding: 0 12px; /* 内容边距增加 */
+    padding: 0 12px;
     border-radius: var(--radius-elem);
     border: 1px solid var(--input-border);
     background: var(--input-bg);
     color: var(--text-main);
     
-    /* 统一字体 */
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
     font-variant-numeric: tabular-nums;
     font-size: 14px;
     
-    /* 核心自适应配置 - 宽敞版 */
-    width: 60px;       /* 初始宽度变大 */
-    min-width: 45px;   /* 【关键】最小宽度增加，单字也不会太窄 */
-    max-width: 60vw;   
+    /* 自适应核心配置 */
+    width: 60px;       
+    min-width: 45px;   
+    max-width: 60vw;
     flex-shrink: 1;
     text-align: center;
     
     transition: width 0.1s ease, background 0.2s, border-color 0.2s;
     -webkit-appearance: none;
+}
+
+/* 【修改】年份输入框：初始宽度加长 */
+.year-inp {
+    min-width: 60px !important;
 }
 
 input[type="text"]:focus, select:focus {
@@ -221,6 +232,7 @@ select {
     height: 38px;
     width: auto;
     max-width: 100%;
+    flex-wrap: nowrap; /* 容器内部不换行 */
 }
 .input-with-prefix:focus-within { background: var(--input-bg-hover); border-color: var(--primary); }
 .input-with-prefix input { 
@@ -230,7 +242,6 @@ select {
     padding-left: 4px !important; 
     height: 100%; 
     text-align: left !important;
-    /* 这里 min-width 可以小一点，因为外层有容器 */
     min-width: 20px !important; 
 }
 .prefix { font-size: 13px; color: var(--text-sub); white-space: nowrap; }
@@ -240,25 +251,26 @@ select {
 .btn-text { background: transparent; color: var(--text-sub); height: 32px; padding: 0 10px; font-size: 13px; }
 .btn-text:hover { color: var(--text-main); background: rgba(255,255,255,0.1); border-radius: 8px; }
 
-.flex-group { display: flex; gap: 8px; align-items: center; flex: 1; flex-wrap: nowrap; overflow: hidden; }
-.flex-group select { flex: 1; min-width: 0; }
+.flex-group { display: flex; gap: 8px; align-items: center; flex: 1; flex-wrap: wrap; overflow: hidden; }
+.flex-group select { flex: 1; min-width: 100px; } /* 样式选择框宽一点 */
 .flex-group button { flex: 0 0 auto; }
 
 .sub-setting {
     display: inline-flex; align-items: center;
     background: transparent; border-left: 2px solid var(--input-border);
-    padding: 4px 0 4px 12px; margin-left: 78px; margin-bottom: 12px;
+    padding: 4px 0 4px 12px; margin-left: 64px; /* 跟随 label 宽度调整 */
+    margin-bottom: 12px;
     font-size: 12px; gap: 6px;
 }
 .sub-label { color: var(--text-sub); white-space: nowrap; }
 .dash { color: var(--text-sub); margin: 0 2px; }
 
-.datetime-row { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-sub); flex-wrap: nowrap; }
+.datetime-row { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-sub); flex-wrap: wrap; }
 .spacer { width: 8px; }
 .dual-input { display: flex; align-items: center; gap: 10px; }
 .unit { font-size: 12px; color: var(--text-sub); white-space: nowrap; }
 
-.switch-row { margin-left: 78px; display: flex; gap: 24px; margin-bottom: 12px; }
+.switch-row { margin-left: 64px; display: flex; gap: 24px; margin-bottom: 12px; }
 .switch-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-main); }
 
 input[type="checkbox"] {
@@ -286,5 +298,4 @@ input[type="checkbox"]:checked::after { transform: translateX(18px); }
     .new-img { transform: scale(0.9); margin-bottom: -40px; }
     .set-data { width: 100%; max-width: 100%; }
     .sub-setting, .switch-row { margin-left: 0; border-left: none; padding-left: 0; }
-    li { flex-wrap: wrap; }
 }
