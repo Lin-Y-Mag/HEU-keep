@@ -1,3 +1,5 @@
+/* css/liquid.css */
+
 /* =========================================
    1. Design Tokens (配色与参数)
    ========================================= */
@@ -64,13 +66,13 @@
 }
 
 /* =========================================
-   2. Global Reset
+   2. Global Reset & Background
    ========================================= */
 * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
 body {
     margin: 0; padding: 0;
-    /* 字体优化：不再使用 monospace，解决数字丑的问题 */
+    /* 字体优化：使用系统字体 */
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: #111;
     color: var(--text-main);
@@ -80,16 +82,20 @@ body {
     transition: color 0.3s ease;
 }
 
-/* 背景光斑 */
+/* 背景光斑 - 性能优化版 */
 .liquid-bg-gradient { position: fixed; inset: 0; z-index: -2; background: var(--bg-gradient); transition: background 0.5s ease; }
 .liquid-orb {
     position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1; opacity: 0.7;
     animation: float 15s infinite ease-in-out alternate;
     transition: background-color 0.5s ease;
+    
+    /* 🚀 性能优化: 开启 GPU 加速 */
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
 }
 .orb-1 { width: 60vw; height: 60vw; background: var(--orb-1); top: -20%; left: -20%; }
 .orb-2 { width: 50vw; height: 50vw; background: var(--orb-2); bottom: -10%; right: -10%; animation-delay: -5s; }
-@keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, 50px); } }
+@keyframes float { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(30px, 50px, 0); } }
 
 @font-face { font-family: 'keeprun'; src: url(../DINCond-Bold.otf); }
 
@@ -100,20 +106,22 @@ body {
 }
 
 /* =========================================
-   3. 左侧预览 (修复截图bug)
+   3. 左侧预览 (含渲染优化)
    ========================================= */
 .new-img {
     position: relative; width: 360px; height: 719px; background: #fff;
     border-radius: 50px;
-    /* 纯净的阴影，移除 transform 以修复 html2canvas */
     box-shadow: 0 0 0 12px #1a1a1a, 0 50px 100px -20px rgba(0,0,0,0.4);
     overflow: hidden; flex-shrink: 0; user-select: none;
+    
+    /* 🚀 性能优化: 包含内容渲染边界 */
+    contain: content;
 }
 @media (prefers-color-scheme: dark) {
     .new-img { box-shadow: 0 0 0 12px #000, 0 50px 100px -20px rgba(0,0,0,0.6); }
 }
 
-/* 内部元素 (保持原样) */
+/* 内部元素 */
 .new-img img { display: block; }
 .new-img #gui-img, .new-img .bgimgwrap, .new-img .innerbgimg { position: absolute; top: 0; left: 0; width: 360px; height: 719px; }
 .new-img .bgimgwrap { display: flex; justify-content: center; align-items: center; background: #333; }
@@ -122,7 +130,7 @@ body {
 .new-img .weather-imgwrap { position: absolute; top: 426.5px; left: 238px; width: 14px; height: 14px; z-index: 2; }
 .new-img .weather { width: 100%; height: 100%; }
 
-/* 预览区文字 */
+/* 预览区文字定位 */
 .username { position: absolute; top: 385px; right: 34px; font-size: 13px; color: #333; font-family: "Microsoft YaHei", sans-serif; font-weight: bold; }
 .keep-title { position: absolute; top: 361px; left: 30px; font-size: 12px; color: #a2a2a2; font-family: sans-serif; }
 .mile { position: absolute; top: 387px; left: 32px; font-family: 'keeprun', sans-serif !important; color: #57525d; }
@@ -135,7 +143,7 @@ body {
 .speed { left: 32px; letter-spacing: -0.5px; } .cost-time { left: 140px; letter-spacing: -0.5px; } .calorie { right: 32px; }
 
 /* =========================================
-   4. 右侧控制面板 (高通透 & 统一)
+   4. 右侧控制面板 (玻璃容器)
    ========================================= */
 .set-data { flex: 1; min-width: 320px; max-width: 500px; display: flex; flex-direction: column; gap: 24px; }
 
@@ -149,93 +157,71 @@ body {
     position: relative;
     overflow: hidden;
     transition: background-color 0.3s ease;
+    
+    /* 🚀 性能优化: 包含内容渲染边界 */
+    contain: content;
 }
 .glass-card { padding: 28px; }
-
-/* --- 顶部按钮布局 (修复乱位) --- */
 .export-panel { padding: 20px; margin-bottom: 20px; }
-.export-grid { 
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; 
-}
+.export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
 
+/* 通用按钮 */
 button {
     cursor: pointer; border: none; padding: 0 16px;
-    border-radius: var(--radius-elem); /* 统一圆角 */
+    border-radius: var(--radius-elem);
     font-weight: 600; transition: all 0.2s ease;
     display: flex; align-items: center; justify-content: center; gap: 6px;
-    height: 44px; /* 统一高度 */
-    white-space: nowrap; /* 强制不换行！ */
-    flex-shrink: 0; /* 禁止被挤压 */
+    height: 44px; white-space: nowrap; flex-shrink: 0;
 }
 
-/* 主保存按钮 */
-.main-save {
-    background: var(--text-main); color: #fff; 
-    height: 50px; font-size: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
+.main-save { background: var(--text-main); color: #fff; height: 50px; font-size: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 @media (prefers-color-scheme: dark) { .main-save { color: #000; } }
 .main-save:hover { transform: scale(1.02); opacity: 0.95; }
 
-/* 预览按钮 */
-.main-preview {
-    background: var(--btn-bg); border: 1px solid var(--input-border); 
-    color: var(--text-main); height: 50px; font-size: 15px;
-}
+.main-preview { background: var(--btn-bg); border: 1px solid var(--input-border); color: var(--text-main); height: 50px; font-size: 15px; }
 .main-preview:hover { background: var(--btn-bg-hover); }
 
-/* 备用按钮 */
-.backup-btn {
-    background: rgba(255,255,255,0.15); border: 1px solid var(--input-border);
-    color: var(--text-sub); height: 36px; font-size: 12px;
-}
+.backup-btn { background: rgba(255,255,255,0.15); border: 1px solid var(--input-border); color: var(--text-sub); height: 36px; font-size: 12px; }
 .backup-btn:hover { background: var(--btn-bg-hover); color: var(--text-main); }
 
 /* =========================================
-   5. 表单控件 (统一风格)
+   5. 表单控件与列表 (基础样式)
    ========================================= */
 .divider { height: 1px; background: var(--input-border); margin: 24px -28px; opacity: 0.3; }
 .input-group { margin-bottom: 24px; }
 .group-title { font-size: 12px; letter-spacing: 1px; color: var(--text-sub); margin-bottom: 12px; font-weight: 700; opacity: 0.8; }
 
-li { 
-    display: flex; align-items: center; margin-bottom: 14px; 
-    flex-wrap: nowrap; /* 关键：防止按钮被换行 */
-    gap: 8px;
-}
-label { flex: 0 0 70px; font-size: 14px; color: var(--text-main); font-weight: 500; opacity: 0.9; white-space: nowrap; }
-
-/* 统一输入框 */
+/* 通用输入框 */
 input[type="text"], select {
     height: 38px; padding: 0 12px;
-    border-radius: var(--radius-elem); /* 统一圆角 */
+    border-radius: var(--radius-elem);
     border: 1px solid var(--input-border);
-    background: var(--input-bg); /* 更透 */
+    background: var(--input-bg);
     color: var(--text-main);
     
-    /* 解决“字体丑”：使用系统字体，且数字等宽 */
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
     font-variant-numeric: tabular-nums;
     font-size: 14px;
-    
     transition: all 0.2s;
-    /* 自动宽度 */
-    width: auto; field-sizing: content; min-width: 60px; max-width: 100%;
+    
+    /* iOS 自适应基础 (配合JS) */
+    width: auto;
+    min-width: 60px;
+    max-width: 100%;
+    
+    /* 🚀 性能优化: 提示浏览器宽度会变 */
+    will-change: width;
 }
-
-/* 解决之前那个丑陋的 mono 字体 */
-.font-mono { 
-    font-family: inherit; font-weight: 500; letter-spacing: 0;
-}
-
+.font-mono { font-family: inherit; font-weight: 500; letter-spacing: 0; }
 input[type="text"]:focus, select:focus {
     background: var(--input-bg-hover);
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
 }
 
-/* 组合框 */
+/* 组合框容器 */
 .input-with-prefix {
-    display: inline-flex; align-items: center; 
+    display: inline-flex; align-items: center;
     background: var(--input-bg); border: 1px solid var(--input-border);
     border-radius: var(--radius-elem); padding-left: 12px; height: 38px;
     width: fit-content; max-width: 100%;
@@ -244,29 +230,18 @@ input[type="text"]:focus, select:focus {
 .input-with-prefix:focus-within { background: var(--input-bg-hover); border-color: var(--primary); }
 .prefix { font-size: 13px; color: var(--text-sub); white-space: nowrap; }
 
-/* 小按钮 (上传、重置) */
-.btn-small {
-    height: 32px; font-size: 12px; padding: 0 14px;
-    background: var(--btn-bg); border: 1px solid var(--input-border); 
-    color: var(--text-main); border-radius: 8px; width: auto;
-}
+/* 小按钮 */
+.btn-small { height: 32px; font-size: 12px; padding: 0 14px; background: var(--btn-bg); border: 1px solid var(--input-border); color: var(--text-main); border-radius: 8px; width: auto; }
 .btn-small:hover { background: var(--btn-bg-hover); }
-
-.btn-text {
-    background: transparent; color: var(--text-sub); height: 32px; padding: 0 10px; font-size: 13px;
-}
+.btn-text { background: transparent; color: var(--text-sub); height: 32px; padding: 0 10px; font-size: 13px; }
 .btn-text:hover { color: var(--text-main); background: rgba(255,255,255,0.1); border-radius: 8px; }
 
-/* Flex Group (修复样式选择行) */
-.flex-group {
-    display: flex; gap: 8px; align-items: center; flex: 1;
-    flex-wrap: nowrap; /* 关键 */
-    overflow: hidden;
-}
-.flex-group select { flex: 1; min-width: 0; } /* select 自适应 */
+/* Flex Group (用于样式选择等) */
+.flex-group { display: flex; gap: 8px; align-items: center; flex: 1; flex-wrap: nowrap; overflow: hidden; }
+.flex-group select { flex: 1; min-width: 0; }
 .flex-group button { flex: 0 0 auto; }
 
-/* 范围输入容器 */
+/* 范围输入 */
 .sub-setting {
     display: inline-flex; align-items: center;
     background: transparent; border-left: 2px solid var(--input-border);
@@ -274,18 +249,11 @@ input[type="text"]:focus, select:focus {
     font-size: 12px; gap: 6px;
 }
 .sub-label { color: var(--text-sub); }
-.mini-input {
-    min-width: 45px !important; height: 30px !important; border-radius: 8px !important;
-    text-align: center; background: var(--input-bg) !important; padding: 0 4px !important;
-    font-size: 13px !important;
-}
+.mini-input { min-width: 45px !important; height: 30px !important; border-radius: 8px !important; text-align: center; background: var(--input-bg) !important; padding: 0 4px !important; font-size: 13px !important; }
 .dash { color: var(--text-sub); margin: 0 2px; }
 
 .datetime-row { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-sub); flex-wrap: nowrap; }
-.year-inp, .date-inp, .time-inp { 
-    min-width: 38px !important; text-align: center; padding: 0 2px !important; flex: 0 1 auto; 
-    height: 32px !important; border-radius: 8px !important; background: var(--input-bg) !important;
-}
+.year-inp, .date-inp, .time-inp { min-width: 38px !important; text-align: center; padding: 0 2px !important; flex: 0 1 auto; height: 32px !important; border-radius: 8px !important; background: var(--input-bg) !important; }
 .year-inp { min-width: 52px !important; }
 .spacer { width: 8px; }
 
@@ -296,18 +264,13 @@ input[type="text"]:focus, select:focus {
 /* 开关 */
 .switch-row { margin-left: 78px; display: flex; gap: 24px; margin-bottom: 12px; }
 .switch-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-main); }
-
 input[type="checkbox"] {
-    appearance: none; width: 40px; height: 22px; border-radius: 11px;
-    background: var(--input-border); position: relative; cursor: pointer;
-    transition: background 0.3s; border: none; flex-shrink: 0;
-    min-width: 40px !important; width: 40px !important;
+    appearance: none; width: 40px; height: 22px; border-radius: 11px; background: var(--input-border);
+    position: relative; cursor: pointer; transition: background 0.3s; border: none; flex-shrink: 0; min-width: 40px !important; width: 40px !important;
 }
 input[type="checkbox"]::after {
-    content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
-    border-radius: 50%; background: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    transition: transform 0.3s cubic-bezier(0.3, 1.5, 0.7, 1);
+    content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.3s cubic-bezier(0.3, 1.5, 0.7, 1);
 }
 input[type="checkbox"]:checked { background: #34C759; }
 input[type="checkbox"]:checked::after { transform: translateX(18px); }
@@ -325,5 +288,80 @@ input[type="checkbox"]:checked::after { transform: translateX(18px); }
     .new-img { transform: scale(0.9); margin-bottom: -40px; }
     .set-data { width: 100%; max-width: 100%; }
     .sub-setting, .switch-row { margin-left: 0; border-left: none; padding-left: 0; }
-    li { flex-wrap: wrap; } 
+    li { flex-wrap: wrap; }
+}
+
+/* =========================================
+   6. 专项修复与补丁 (Patches & Fixes)
+   ========================================= */
+
+/* [Patch 1] 极致紧凑布局 (缩减标签空隙) */
+.setDataList li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 4px !important;          /* 缩减 Flex 间距 */
+    justify-content: flex-start;  /* 强制内容靠左 */
+    flex-wrap: nowrap;
+}
+
+.setDataList li label {
+    min-width: 0 !important;      /* 取消固定占位 */
+    width: auto !important;       /* 宽度由文字决定 */
+    flex: 0 0 auto !important;    /* 禁止压缩 */
+    margin-right: 2px !important; /* 微调缝隙 */
+    text-align: right;
+    font-size: 14px; color: var(--text-main); font-weight: 500; opacity: 0.9; white-space: nowrap;
+}
+
+/* [Patch 2] 样式选择框 (Select) 宽度自适应修复 */
+.flex-group select {
+    flex: 0 1 auto !important;     /* 禁止贪婪伸缩 */
+    width: fit-content !important; /* 自适应文字宽度 */
+    min-width: 60px;
+    max-width: 65%;                /* 防止挤掉右侧按钮 */
+    padding-right: 25px !important;
+}
+
+.flex-group button {
+    flex-shrink: 0 !important;
+    white-space: nowrap;
+}
+
+/* [Patch 3] 标题输入框前缀修复 */
+.input-with-prefix {
+    display: inline-flex !important;
+    width: auto !important;
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+}
+.prefix {
+    margin-right: 0 !important;
+    padding-right: 2px !important;
+}
+.input-with-prefix input {
+    flex-shrink: 0 !important;  /* 禁止被挤压 */
+    flex-grow: 0 !important;
+    width: auto;                /* 允许 JS 控制宽度 */
+    min-width: 80px !important; /* 保底宽度 */
+}
+
+/* [Patch 4] 微型输入框 (时间/日期/温湿度) 样式重置 */
+.time-inp, .year-inp, .date-inp, .mini-input, #inpt_temperature, #inpt_humidity {
+    padding: 0 2px !important;     /* 极小内边距 */
+    min-width: 25px !important;    /* 允许缩得很小 */
+    text-align: center !important; /* 文字居中 */
+    width: auto;
+}
+/* 年份稍微宽一点 */
+.year-inp { min-width: 40px !important; }
+
+/* [Patch 5] 强制文字居中 (里程/配速/宽度设置) */
+#inpt_miles,
+#inpt_speeds,
+#inpt_savePic_width,
+.mile2-inp,
+.range-input {
+    text-align: center !important;
+    padding: 0 5px !important;
 }
