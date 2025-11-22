@@ -14,320 +14,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    
-    <title>HEU人最后的倔强 ver.0</title>
+
+    <title>HEU人最后的倔强 ver.Liquid</title>
     <link rel="icon" href="./favicon.ico">
     <link rel="shortcut icon" href="./favicon.ico">
-    <link rel="stylesheet" href="./css/0.css">
+    <link rel="stylesheet" href="./css/liquid.css">
     <link rel="preload" href="./DINCond-Bold.otf" as="font" type="font/otf" crossorigin>
-
+    
+    <!-- 核心样式补丁 -->
     <style>
         /* =========================================
-           Liquid Glass 风格样式重写
+           iOS 移动端布局专项修复 (Ver 2.0)
            ========================================= */
 
-        /* 1. 按钮样式 (Button) */
-        button, .one_click, .flush-btn, .storeToIndexedDB-btn, .clear-btn, .inpt-btn, .init-btn, .large-btn {
-            border: none !important;
-            outline: none !important;
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(12px) saturate(150%);
-            -webkit-backdrop-filter: blur(12px) saturate(150%);
-            border-radius: 30px !important;
-            box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
-                inset 0 -1px 0 0 rgba(255, 255, 255, 0.2),
-                inset 0 0 20px rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            color: #333 !important;
-            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-            font-weight: 600 !important;
-            font-family: system-ui, -apple-system, sans-serif;
-            letter-spacing: 0.5px;
-            padding: 8px 16px !important;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            z-index: 1;
-        }
-
-        button:hover, .one_click:hover, .flush-btn:hover, .large-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            background: rgba(255, 255, 255, 0.25) !important;
-            box-shadow:
-                0 10px 20px rgba(0, 0, 0, 0.15),
-                inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
-                inset 0 -1px 0 0 rgba(255, 255, 255, 0.3),
-                inset 0 0 20px rgba(255, 255, 255, 0.2) !important;
-        }
-
-        button:active {
-            transform: translateY(1px) scale(0.98);
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(6px);
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-        }
-
-        /* 2. 极致拟真的 Liquid Glass 滑动开关 */
-        input[type="checkbox"] {
-            appearance: none;
-            -webkit-appearance: none;
-            outline: none;
-            
-            /* 尺寸设置 */
-            width: 60px;
-            height: 30px;
-            border-radius: 20px; /* Squircle 风格 */
-            display: inline-block;
-            vertical-align: middle;
-            position: relative;
-            cursor: pointer;
-            margin-right: 8px;
-            
-            /* 背景：未选中时是暗色半透明玻璃 */
-            background: rgba(50, 50, 50, 0.1);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            
-            /* 关键： Lip Bezel (唇形边框) 模拟
-               利用内阴影创造“中间凹陷”的槽体感 */
-            box-shadow:
-                /* 顶部深色内阴影，模拟凹槽深度 */
-                inset 0 4px 6px rgba(0, 0, 0, 0.25),
-                /* 底部亮色反光，模拟玻璃边缘折射 */
-                inset 0 -2px 4px rgba(255, 255, 255, 0.2),
-                /* 外部极细高光 */
-                0 0 0 1px rgba(255, 255, 255, 0.1);
-                
-            border: none; /* 使用 box-shadow 代替 border 以获得更平滑的效果 */
-            transition: all 0.4s ease;
-        }
-
-        /* 滑块 (Thumb) */
-        input[type="checkbox"]::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 1.6px;
-            border-radius: 20px; /* Squircle 风格 */
-
-            width: 34px;
-            height: 26px;
-            /*border-radius: 50%;*/
-            
-            /* 纯白滑块 */
-            background: #ffffff;
-            
-            /* 滑块立体感 */
-            box-shadow:
-                0 2px 5px rgba(0, 0, 0, 0.2),
-                inset 0 -1px 2px rgba(0, 0, 0, 0.1); /* 增加微弱的体积感 */
-                
-            transform: translateX(0);
-            /* 使用弹性物理动画曲线 (Spring) */
-            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        /* 选中状态 (Liquid Green) */
-        input[type="checkbox"]:checked {
-            /* 饱满的绿色背景 */
-            background: #34C759;
-            
-            /* 选中时保留凹陷感，但在绿色液体下更加通透 */
-            box-shadow:
-                inset 0 3px 6px rgba(0, 0, 0, 0.15), /* 内部阴影变淡 */
-                inset 0 -2px 4px rgba(255, 255, 255, 0.25), /* 底部反光增强 */
-                0 0 0 1px rgba(52, 199, 89, 0.3); /* 外部绿色光晕 */
-        }
-
-        /* 选中时滑块移动 */
-        input[type="checkbox"]:checked::after {
-            transform: translateX(22px);
-            background: #fff;
-            box-shadow:
-                0 2px 5px rgba(0, 0, 0, 0.25);
-        }
-
-        /* 悬停交互 */
-        input[type="checkbox"]:hover {
-            filter: brightness(1.05);
-        }
-
-        /* 3. 布局与文字微调 */
-        .header-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-        .header-container button {
-            margin: 0 !important;
-            flex: 1 1 auto;
-        }
-        .large-btn {
-            width: 100%;
-            font-size: 16px;
-            padding: 12px 0 !important;
-            background: rgba(255, 255, 255, 0.25) !important;
-        }
-        .background-green button, .background-blue button {
-            color: #222 !important;
+        /* 1. 样式选择框修复 */
+        .flex-group select {
+            flex: 0 1 auto !important;
+            width: fit-content !important;
+            min-width: 60px;
+            max-width: 65%;
+            padding-right: 25px !important;
         }
         
-        /* 按钮流光特效 */
-        button::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg);
-            transition: none;
-            pointer-events: none;
+        .flex-group button {
+            flex-shrink: 0 !important;
+            white-space: nowrap;
         }
-        button:hover::after {
-            left: 150%;
-            transition: all 0.7s ease;
+
+        /* 2. 标题输入框修复 */
+        .input-with-prefix {
+            display: inline-flex !important;
+            width: auto !important;
+            flex-wrap: nowrap !important;
         }
-        /* =========================================
-                   3. Liquid Glass 容器卡片与布局重构
-                   ========================================= */
 
-                /* 布局容器：改为弹性布局，支持双栏显示 */
-                .setDataList {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 16px; /* 卡片之间的间距 */
-                    padding: 0 5px;
-                    justify-content: space-between;
-                }
+        /* 3. 时间/日期小输入框专项修复 */
+        .time-inp, .year-inp, .date-inp, .mini-input, #inpt_temperature, #inpt_humidity {
+            padding: 0 2px !important;
+            min-width: 25px !important;
+            text-align: center !important;
+            width: auto;
+        }
+        .year-inp {
+            min-width: 40px !important;
+        }
 
-                /* 通用玻璃卡片样式 (覆盖原有的 .background-green/blue 等) */
-                .background-green,
-                .background-blue,
-                .background-color-block2,
-                .weather-container {
-                    /* 1. 宽度减半逻辑：(100% / 2) - 间隙微调 */
-                    flex: 1 1 calc(50% - 20px);
-                    min-width: 340px; /* 屏幕太窄时自动变回单栏，防止内容挤压 */
-                    margin-bottom: 0 !important; /* 清除原有边距 */
-                    
-                    /* 2. 核心 Liquid Glass 材质 */
-                    background: rgba(255, 255, 255, 0.4) !important; /* 更通透的白色 */
-                    backdrop-filter: blur(20px) saturate(180%);
-                    -webkit-backdrop-filter: blur(20px) saturate(180%);
-                    
-                    /* 3. 边框与光影 */
-                    border-radius: 24px !important;
-                    border: 1px solid rgba(255, 255, 255, 0.6) !important; /* 亮边框 */
-                    border-left: 1px solid rgba(255, 255, 255, 0.6) !important; /* 覆盖掉原本的粗色条 */
-                    box-shadow:
-                        0 8px 32px 0 rgba(31, 38, 135, 0.05), /* 柔和阴影 */
-                        inset 0 1px 0 0 rgba(255, 255, 255, 0.8), /* 顶部高光 */
-                        inset 0 0 20px rgba(255, 255, 255, 0.1);
-                        
-                    /* 内部布局 */
-                    padding: 20px !important;
-                    box-sizing: border-box;
-                    transition: none; /* 禁止容器整体移动，满足"鼠标悬停只触发按钮" */
-                }
+        /* 4. 极致紧凑布局修复 (缩减标签空隙) */
+        .setDataList li {
+            gap: 4px !important;
+            justify-content: flex-start;
+        }
 
-                /* 针对天气容器的特殊处理（因为它包裹了另一个div） */
-                .weather-container .background-color-block2 {
-                    width: 100% !important;
-                    box-shadow: none !important;
-                    border: none !important;
-                    background: transparent !important;
-                    padding: 0 !important;
-                    backdrop-filter: none;
-                }
+        .setDataList li label {
+            min-width: 0 !important;
+            width: auto !important;
+            flex: 0 0 auto !important;
+            margin-right: 2px !important;
+            text-align: right;
+        }
 
-                /* =========================================
-                   4. 玻璃质感输入框 (Input Fields)
-                   让输入框看起来像是在玻璃上雕刻的凹槽
-                   ========================================= */
-                .setDataList input[type="text"],
-                .setDataList select {
-                    /* 凹槽质感 */
-                    background: rgba(0, 0, 0, 0.03) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-                    border-radius: 12px !important;
-                    
-                    /* 内阴影创造深度 */
-                    box-shadow:
-                        inset 0 2px 4px rgba(0, 0, 0, 0.06),
-                        0 1px 0 rgba(255, 255, 255, 0.5) !important;
-                    
-                    /* 文字样式 */
-                    color: #333;
-                    font-family: inherit;
-                    padding: 8px 12px !important;
-                    height: auto !important;
-                    transition: all 0.3s ease;
-                }
+        .input-with-prefix {
+            gap: 2px !important;
+        }
+        
+        .prefix {
+            margin-right: 0 !important;
+            padding-right: 2px !important;
+        }
 
-                /* 输入框聚焦状态：发光 */
-                .setDataList input[type="text"]:focus,
-                .setDataList select:focus {
-                    background: rgba(255, 255, 255, 0.8) !important;
-                    box-shadow:
-                        0 0 0 4px rgba(255, 255, 255, 0.5),
-                        0 4px 12px rgba(0,0,0,0.1) !important;
-                    border-color: #fff !important;
-                }
+        /* 5. 强制里程与配速输入框文字居中 */
+        #inpt_miles,
+        #inpt_speeds,
+        #inpt_savePic_width,
+        .mile2-inp {
+            text-align: center !important;
+            padding: 0 5px !important;
+        }
 
-                /* 修复列表项的间距 */
-                .setDataList li {
-                    margin-bottom: 12px;
-                    display: flex;
-                    align-items: center;
-                    flex-wrap: wrap;
-                }
-                
-                /* 标签文字优化 */
-                .setDataList li label {
-                    font-weight: 600;
-                    color: #444;
-                    opacity: 0.8;
-                    margin-right: 8px;
-                    min-width: 70px; /* 保证对齐 */
-                }
-                
-                /* 特殊处理：范围输入框的小容器 */
-                .background-color-block1 {
-                    background: rgba(0, 0, 0, 0.03) !important;
-                    border-radius: 12px;
-                    padding: 10px;
-                    margin-top: 8px;
-                    width: 100%;
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                }
-                
-                .range-input {
-                    width: 60px !important;
-                    text-align: center;
-                }
+        .range-input {
+            text-align: center !important;
+        }
+        
+        .input-with-prefix input {
+            flex-shrink: 0 !important;
+            flex-grow: 0 !important;
+            width: auto;
+            min-width: 80px !important;
+        }
     </style>
 </head>
 
 <body id="body">
 
+    <!-- 动态背景层 -->
+    <div class="liquid-bg-gradient"></div>
+    <div class="liquid-orb orb-1"></div>
+    <div class="liquid-orb orb-2"></div>
+
     <div id="main-div">
-        <div id="new-Img" class="new-img">
+        <!-- 左侧：手机预览 -->
+        <div id="new-Img" class="new-img glass-effect">
             <div class="bgimgwrap" id="bgimgwrap">
-                <img src="" class="innerbgimg" id="bg-img" alt="背景图" />
+                <img src="" class="innerbgimg" id="bg-img" alt="" />
             </div>
-            <img src="" id="gui-img" alt="UI遮罩" />
+            <img src="" id="gui-img" alt="" />
             <div class="portrait-wrap" id="portrait-wrap">
-                <img class="portrait" id="portrait" src="" alt="头像" />
+                <img class="portrait" id="portrait" src="" alt="" />
             </div>
             <div class="weather-imgwrap">
-                <img src="" class="weather" id="weather" alt="天气图标" />
+                <img src="" class="weather" id="weather" alt="" />
             </div>
             <span class="username" id="username">UserName</span>
             <span class="keep-title" id="keep-title">户外跑步</span>
@@ -341,77 +136,92 @@
             <span class="speed-time calorie" id="calorie">0</span>
         </div>
 
+        <!-- 右侧：控制面板 -->
         <div class="set-data">
             <div id="messageBox"></div>
-            
-            <!-- 顶部快捷操作栏 (已移除 Emoji) -->
-            <div class="header-container">
-                <button onclick="Download(Download1)" class="one_click">保存图片</button>
-                <button onclick="Download(Download2)" class="one_click">预览效果</button>
-                <button onclick="drawMine()" class="flush-btn">随机路径</button>
-                <button onclick="storeToIndexedDB(tmp_portrait_src,tmp_bgimg_osrc)" class="storeToIndexedDB-btn" title="保存用户名、头像等常用信息到浏览器">保存设置</button>
-                <button onclick="clearIndexedDB()" class="clear-btn">重置所有</button>
+
+            <!-- 导出控制区 -->
+            <div class="glass-card export-panel">
+                <div class="export-grid">
+                    <button onclick="Download(Download1)" class="btn-primary main-save">
+                        <span class="icon"></span> 保存高清图片
+                    </button>
+                    <button onclick="Download(Download2)" class="btn-secondary main-preview">
+                        <span class="icon"></span> 预览
+                    </button>
+                    <button onclick="Download(Download3)" class="btn-tiny backup-btn">备用方案 A</button>
+                </div>
             </div>
 
-            <ul class="setDataList">
-                <!-- 1. 用户信息设置 -->
-                <div class="background-green">
-                    <li>
-                        <label>用户名：</label>
-                        <input id="inpt_username" onchange="setData()" type="text" class="username-inp" placeholder="输入昵称">
-                    </li>
-                    <li>
-                        <label>头像：</label>
-                        <button onclick="inpt_portrait_onClick()" class="inpt-btn">上传图片</button>
-                        <input style="display:none;" type="file" accept="image/*" id="inpt_portrait" onchange="portrait_inpt()" />
-                        <button onclick="init_portrait()" class="init-btn">恢复默认</button>
-                    </li>
-                    <li>
-                        <label>运动标题：</label>
-                        <span>keep • </span>
-                        <input id="inpt_keep_title" onchange="setData()" type="text" class="keep-title-inp" placeholder="例如: 户外跑步">
-                    </li>
-                </div>
-                
-                <!-- 2. 运动数据设置 -->
-                <div class="background-blue">
-                    <li>
-                        <label>主里程(km)：</label>
-                        <input id="inpt_miles" onchange="setData()" type="text" class="mile2-inp" placeholder="显示值">
-                        <div class="background-color-block1">
-                            <small>随机范围 (用于生成截图时微调)：</small><br>
-                            最小: <input type="text" id="min_miles" onchange="set_km_and_speed()" class="mile2-inp range-input">
-                            ~ 最大: <input type="text" id="max_miles" onchange="set_km_and_speed()" class="mile2-inp range-input">
-                        </div>
-                    </li>
-                    <li>
-                        <label>配速：</label>
-                        <input id="inpt_speeds" onchange="setData()" type="text" class="mile2-inp" placeholder="例如 5'30&quot;">
-                        <div class="background-color-block1">
-                            <small>随机范围 (注意: 秒数不要超过59)：</small><br>
-                            最快: <input type="text" id="min_speeds" onchange="set_km_and_speed()" class="mile2-inp range-input" placeholder="4'30&quot;">
-                            ~ 最慢: <input type="text" id="max_speeds" onchange="set_km_and_speed()" class="mile2-inp range-input" placeholder="5'15&quot;">
-                        </div>
-                    </li>
-                </div>
-
-                <!-- 3. 时间与环境 -->
-                <div class="background-color-block2">
-                    <li>
-                        <label>运动时间：</label>
-                        <input id="inpt_year" onchange="setData()" type="text" class="time-inp year-inp"><span>年</span>
-                        <input id="inpt_month" onchange="setData()" type="text" class="time-inp"><span>月</span>
-                        <input id="inpt_day" onchange="setData()" type="text" class="time-inp"><span>日</span>
-                        &nbsp;&nbsp;
-                        <input id="inpt_hour" onchange="setData()" type="text" class="time-inp"><span>:</span>
-                        <input id="inpt_min" onchange="setData()" type="text" class="time-inp">
-                    </li>
-                </div>
-                <div class="weather-container">
-                    <div class="background-color-block2">
+            <!-- 主设置面板 -->
+            <div class="glass-card control-panel">
+                <ul class="setDataList">
+                    <!-- 用户信息 -->
+                    <div class="input-group">
+                        <div class="group-title">基本信息</div>
                         <li>
-                            <label>天气环境：</label>
-                            <!-- 选项已移除 Emoji -->
+                            <label>用户名</label>
+                            <input id="inpt_username" onchange="setData()" type="text" placeholder="输入昵称">
+                        </li>
+                        <li>
+                            <label>头像</label>
+                            <div class="file-action-row">
+                                <button onclick="inpt_portrait_onClick()" class="btn-small">上传</button>
+                                <button onclick="init_portrait()" class="btn-text">恢复默认</button>
+                                <input style="display:none;" type="file" accept="image/*" id="inpt_portrait" onchange="portrait_inpt()" />
+                            </div>
+                        </li>
+                        <li>
+                            <label>标题</label>
+                            <div class="input-with-prefix">
+                                <span class="prefix">keep • </span>
+                                <input id="inpt_keep_title" onchange="setData()" type="text" placeholder="户外跑步">
+                            </div>
+                        </li>
+                    </div>
+
+                    <!-- 运动数据 -->
+                    <div class="input-group">
+                        <div class="group-title">运动数据</div>
+                        <li>
+                            <label>里程</label>
+                            <input id="inpt_miles" onchange="setData()" type="text" class="font-mono" placeholder="0.00">
+                        </li>
+                        <div class="sub-setting">
+                            <span class="sub-label">随机范围:</span>
+                            <input type="text" id="min_miles" onchange="set_km_and_speed()" class="mini-input" placeholder="Min">
+                            <span class="dash">-</span>
+                            <input type="text" id="max_miles" onchange="set_km_and_speed()" class="mini-input" placeholder="Max">
+                        </div>
+
+                        <li style="margin-top: 12px;">
+                            <label>配速</label>
+                            <input id="inpt_speeds" onchange="setData()" type="text" class="font-mono" placeholder="5'30&quot;">
+                        </li>
+                        <div class="sub-setting">
+                            <span class="sub-label">随机范围:</span>
+                            <input type="text" id="min_speeds" onchange="set_km_and_speed()" class="mini-input" placeholder="快">
+                            <span class="dash">-</span>
+                            <input type="text" id="max_speeds" onchange="set_km_and_speed()" class="mini-input" placeholder="慢">
+                        </div>
+                    </div>
+
+                    <!-- 时间与环境 -->
+                    <div class="input-group">
+                        <div class="group-title">时间与环境</div>
+                        <li>
+                            <label>时间</label>
+                            <div class="datetime-row">
+                                <input id="inpt_year" onchange="setData()" type="text" class="year-inp"><span>/</span>
+                                <input id="inpt_month" onchange="setData()" type="text" class="date-inp"><span>/</span>
+                                <input id="inpt_day" onchange="setData()" type="text" class="date-inp">
+                                <span class="spacer"></span>
+                                <input id="inpt_hour" onchange="setData()" type="text" class="time-inp"><span>:</span>
+                                <input id="inpt_min" onchange="setData()" type="text" class="time-inp">
+                            </div>
+                        </li>
+                        <li>
+                            <label>天气</label>
                             <select onchange="weather_Select_onChange()" id="weather_Select">
                                 <option value="images/weather1.png">晴</option>
                                 <option value="images/weather2.png">多云</option>
@@ -419,118 +229,107 @@
                             </select>
                         </li>
                         <li>
-                            <label>气温/湿度：</label>
-                            <input id="inpt_temperature" onchange="setData()" type="text" style="width:45px;" placeholder="°C"> °C
-                            &nbsp;&nbsp;
-                            <input id="inpt_humidity" onchange="setData()" type="text" style="width:57px;" placeholder="%">
-                            <span class="ApiExplanation" style="display:inline-block; margin-left:10px;">(默认自动获取实时数据)</span>
+                            <label>温湿度</label>
+                            <div class="dual-input">
+                                <input id="inpt_temperature" onchange="setData()" type="text" class="mini-input" placeholder="°C">
+                                <span class="unit">°C</span>
+                                <input id="inpt_humidity" onchange="setData()" type="text" class="mini-input" placeholder="%">
+                                <span class="unit"></span>
+                            </div>
                         </li>
                     </div>
-                </div>
 
-                <!-- 4. 地图与轨迹设置 -->
-                <div class="background-green">
-                    <li>
-                        <label>地图背景：</label>
-                        <select onchange="default_bgImgSelect_onChange()" id="default_bgImgSelect">
-                            <option value="guiji_Select_1">南体育场</option>
-                            <option value="guiji_Select_2">军工操场</option>
-                            <option value="guiji_Select_3">北体育场</option>
-                        </select>
-                    </li>
-                    <li>
-                        <label>自定义地图：</label>
-                        <button onclick="inpt_bgimg_onClick()">上传图片</button>
-                        <input style="display:none;" type="file" accept="image/*" id="inpt_bgimg" onchange="bgimg_inpt()" />
-                        <button onclick="init_bgimg()" class="init-btn">重置</button>
-                    </li>
+                    <!-- 地图与轨迹 -->
+                    <div class="input-group">
+                        <div class="group-title">地图与轨迹</div>
+                        <li>
+                            <label>背景</label>
+                            <select onchange="default_bgImgSelect_onChange()" id="default_bgImgSelect">
+                                <option value="guiji_Select_1">南体育场</option>
+                                <option value="guiji_Select_2">军工操场</option>
+                                <option value="guiji_Select_3">北体育场</option>
+                            </select>
+                        </li>
+                        <li>
+                            <label>自定义</label>
+                            <div class="file-action-row">
+                                <button onclick="inpt_bgimg_onClick()" class="btn-small">上传地图</button>
+                                <button onclick="init_bgimg()" class="btn-text">重置</button>
+                                <input style="display:none;" type="file" accept="image/*" id="inpt_bgimg" onchange="bgimg_inpt()" />
+                            </div>
+                        </li>
 
-                    <li>
-                        <label>轨迹样式：</label>
-                        <select onchange="guijiSelect_onChange()" id="guiji_Select_1" class="guijiSelect">
-                            <option value="['images/bg1_1.png', 'images/bg1_empty2.png']">路径 1</option>
-                            <option value="['images/bg1_2.png', 'images/bg1_empty2.png']">路径 2</option>
-                            <option value="['images/bg1_3.png', 'images/bg1_empty2.png']">路径 3</option>
-                            <option value="['images/bg1_4.png', 'images/bg1_empty2.png']">路径 4</option>
-                            <option value="['images/bg1_5.png', 'images/bg1_empty2.png']">路径 5</option>
-                            <option value="['images/bg1_empty2.png', 'images/bg1_empty2.png']">默认</option>
-                        </select>
-                        <select onchange="guijiSelect_onChange()" id="guiji_Select_2" class="guijiSelect">
-                            <option value="['images/bg2_empty.png', 'images/bg2_empty.png']">默认</option>
-                        </select>
-                        <select onchange="guijiSelect_onChange()" id="guiji_Select_3" class="guijiSelect">
-                            <option value="['images/bg3_empty.png', 'images/bg3_empty.png']">默认</option>
-                        </select>
+                        <li>
+                            <label>样式</label>
+                            <div class="flex-group" style="display:flex; gap:8px; align-items:center; flex:1;">
+                                <select onchange="guijiSelect_onChange()" id="guiji_Select_1" class="guijiSelect">
+                                    <option value="['images/bg1_1.png', 'images/bg1_empty2.png']">样式 1</option>
+                                    <option value="['images/bg1_2.png', 'images/bg1_empty2.png']">样式 2</option>
+                                    <option value="['images/bg1_3.png', 'images/bg1_empty2.png']">样式 3</option>
+                                    <option value="['images/bg1_4.png', 'images/bg1_empty2.png']">样式 4</option>
+                                    <option value="['images/bg1_5.png', 'images/bg1_empty2.png']">样式 5</option>
+                                    <option value="['images/bg1_empty2.png', 'images/bg1_empty2.png']">默认</option>
+                                </select>
+                                <button onclick="drawMine()" class="btn-small btn-secondary" title="生成随机路径">随机</button>
+                                <!-- 隐藏的备用 Select -->
+                                <select onchange="guijiSelect_onChange()" id="guiji_Select_2" class="guijiSelect" style="display:none;">
+                                    <option value="['images/bg2_empty.png', 'images/bg2_empty.png']">默认</option>
+                                </select>
+                                <select onchange="guijiSelect_onChange()" id="guiji_Select_3" class="guijiSelect" style="display:none;">
+                                    <option value="['images/bg3_empty.png', 'images/bg3_empty.png']">默认</option>
+                                </select>
+                            </div>
+                        </li>
+
+                        <!--
+                           已移除 "自动生成" 和 "渐变色" 的复选框
+                           (注意：如果 JS 中仍需用到这些参数，建议保留输入框ID但隐藏，这里仅移除了Switch开关)
+                        -->
                         
-                        <button onclick="inpt_drawbtn_onClick()" style="margin-left: 10px;">手绘轨迹</button>
-                    </li>
-                    
-                    <!-- 轨迹选项 -->
-                    <li>
-                        <label>加载选项：</label>
-                        <input type="checkbox" id="auto_draw_checkbox" onchange="auto_draw_checkbox_onchange()" checked />
-                        <span>页面加载时自动生成路径</span>
-                    </li>
-                    <li>
-                        <label>轨迹特效：</label>
-                        <input type="checkbox" id="inpt_colorchange_checkbox" onchange="inpt_colorchange_checkbox_onchange()" checked />
-                        <span>启用渐变色 (模拟配速变化)</span>
-                    </li>
-                    <li id="bs_prop_inpt_wrap">
-                        <label>变色概率：</label>
-                        <input id="inpt_bs_prob" onchange="setData()" type="text" style="width: 70px;" placeholder="0-1之间">
-                    </li>
-                    <li id="inpt_bs_range_wrap">
-                        <label>变色步长：</label>
-                        <input id="inpt_bs_range_min" onchange="setData()" type="text" style="width: 50px;">
-                        <span>~</span>
-                        <input id="inpt_bs_range_max" onchange="setData()" type="text" style="width: 50px;">
-                    </li>
-                </div>
-                
-                <div class="background-green">
-                    <li>
-                        <label>生成宽度：</label>
-                        <input id="inpt_savePic_width" onchange="setData()" type="text" style="width: 70px;" placeholder="默认宽度"> px
-                    </li>
-                </div>
-                
-                <!-- 底部大按钮 -->
-                <li style="margin-top: 20px;">
-                    <button onclick="Download(Download1)" class="large-btn" style="width: 100%;">生成并保存图片</button>
-                </li>
-                <li style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button onclick="Download(Download3)" style="flex: 1;">备用下载方案 1</button>
-                    <button onclick="Download(Download4)" style="flex: 1;">备用下载方案 2</button>
-                </li>
-            </ul>
-
-            <!-- 手动绘制弹窗 -->
-            <div id="drawpic_overlay">
-                <div class="drawpic_popup">
-                    <div>
-                        <h3>绘制轨迹</h3>
-                        <p style="font-size: 12px; color: #666;">在下方画布拖动鼠标或手指绘制路径</p>
-                    </div>
-                    <div id="drawpic_canvas_wrap2">
-                        <div id="drawpic_canvas_wrap">
-                            <canvas id="drawpic_canvas" width="1" height="1"></canvas>
+                        <div class="sub-setting" id="bs_prop_inpt_wrap">
+                            <span class="sub-label">变色概率:</span>
+                            <input id="inpt_bs_prob" onchange="setData()" type="text" class="mini-input" placeholder="0.5">
+                        </div>
+                        <div class="sub-setting" id="inpt_bs_range_wrap">
+                            <span class="sub-label">变色步长:</span>
+                            <input id="inpt_bs_range_min" onchange="setData()" type="text" class="mini-input">
+                            <span class="dash">-</span>
+                            <input id="inpt_bs_range_max" onchange="setData()" type="text" class="mini-input">
                         </div>
                     </div>
-                    <div style="margin-top: 15px;">
-                        <button onclick="Json2Draw()" class="flush-btn">随机生成</button>
-                        <button onclick="drawpic_initbtn_onClick()" class="init-btn">清空画布</button>
-                        <div style="height: 10px;"></div>
-                        <button onclick="drawpic_hidebtn_onClick()">取消</button>
-                        <button onclick="drawpic_yesbtn_onClick()" class="large-btn">确认使用</button>
+
+                    <!-- 输出设置 (尺寸 + 文件名) -->
+                    <div class="input-group no-border">
+                        <li>
+                            <label>宽度</label>
+                            <input id="inpt_savePic_width" onchange="setData()" type="text" placeholder="默认" style="min-width:80px;">
+                            <span class="unit">px</span>
+                        </li>
+                        <!-- ✅ 新增：文件名设置 -->
+                        <li>
+                            <label>文件名</label>
+                            <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                                <div class="switch-item" style="margin:0;">
+                                    <input type="checkbox" id="chk_default_filename" checked onchange="toggleFilenameInput()">
+                                    <span style="white-space:nowrap; font-size:13px;">默认</span>
+                                </div>
+                                <input type="text" id="inpt_custom_filename" placeholder="输入文件名 (无需后缀)" style="display:none; flex:1; min-width:0;">
+                            </div>
+                        </li>
                     </div>
-                    <canvas id="buffer_canvas" style="display: none;"></canvas>
+
+                </ul>
+
+                <div class="divider"></div>
+                <div class="system-actions">
+                    <button onclick="storeToIndexedDB(tmp_portrait_src,tmp_bgimg_osrc)" class="btn-text">保存配置</button>
+                    <button onclick="clearIndexedDB()" class="btn-text btn-danger-text">重置</button>
                 </div>
             </div>
         </div>
+    </div>
 
-  
-
+    <!-- JS 引用 -->
     <script src="js/invoke/html2canvas.min.js" defer></script>
     <script src="js/invoke/amapHelper.js" defer></script>
     <script src="js/indexedDB.js" defer></script>
@@ -544,6 +343,146 @@
     <script src="js/localTrackGen.js"></script>
     <script src="js/drawMine.js" defer></script>
     <script src="js/onload.js" defer></script>
-</body>
 
+    <!-- ✅ 最终功能脚本：包含文件名逻辑 + 自动运行 + 离屏生成 + 宽度自适应 -->
+    <script>
+        // 1. 文件名输入框切换逻辑
+        function toggleFilenameInput() {
+            const isDefault = document.getElementById('chk_default_filename').checked;
+            const input = document.getElementById('inpt_custom_filename');
+            input.style.display = isDefault ? 'none' : 'block';
+            if (!isDefault) setTimeout(() => input.focus(), 100);
+        }
+
+        // 2. 修复 iOS 字体和宽度
+        function getCanvasFont(elem) {
+            const style = window.getComputedStyle(elem);
+            return `${style.fontWeight || 'normal'} ${style.fontSize || '14px'} ${style.fontFamily || 'sans-serif'}`;
+        }
+
+        function adjustInputWidth(elem) {
+            let canvas = adjustInputWidth.canvas || (adjustInputWidth.canvas = document.createElement("canvas"));
+            let ctx = canvas.getContext("2d");
+            ctx.font = getCanvasFont(elem);
+            let text = elem.value || elem.placeholder || "";
+            let metrics = ctx.measureText(text);
+            
+            const isMini = ['time-inp', 'year-inp', 'date-inp', 'mini-input'].some(c => elem.classList.contains(c)) ||
+                           ['inpt_temperature', 'inpt_humidity'].includes(elem.id);
+            
+            elem.style.width = (Math.ceil(metrics.width) + (isMini ? 15 : 35)) + "px";
+        }
+
+        function initAutoWidth() {
+            document.querySelectorAll('input[type="text"]').forEach(input => {
+                adjustInputWidth(input);
+                input.addEventListener('input', function() { adjustInputWidth(this); });
+                input.addEventListener('blur', function() { adjustInputWidth(this); });
+            });
+        }
+
+        // 3. 主逻辑初始化
+        window.addEventListener('load', function() {
+            console.log("System Ready: Auto-path (Forced) & Custom Filename loaded.");
+
+            // === 功能 1：强制默认生成随机路径 (无需复选框) ===
+            setTimeout(() => {
+                if (typeof drawMine === 'function') {
+                    console.log("Auto-generating initial track...");
+                    // 调用生成接口
+                    drawMine();
+                }
+            }, 500); // 延迟500ms等待地图资源加载
+
+            // 初始化宽度自适应
+            initAutoWidth();
+            
+            // 劫持 API 赋值 (确保自动填入的数据能撑开宽度)
+            ['inpt_temperature', 'inpt_humidity', 'inpt_keep_title', 'inpt_username', 'inpt_year', 'inpt_month', 'inpt_day', 'inpt_hour', 'inpt_min'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+                    Object.defineProperty(el, 'value', {
+                        get: function() { return descriptor.get.call(this); },
+                        set: function(v) { descriptor.set.call(this, v); adjustInputWidth(this); }
+                    });
+                }
+            });
+
+            // === 核心：重写下载函数 (支持自定义文件名 & 离屏渲染) ===
+            window.Download = function(fileNameArg) {
+                const targetNode = document.getElementById('new-Img');
+                if (!targetNode) return;
+
+                // 创建幽灵容器 (避免视觉干扰)
+                const ghostWrapper = document.createElement('div');
+                Object.assign(ghostWrapper.style, {
+                    position: 'fixed', top: '-9999px', left: '-9999px', zIndex: '-1000',
+                    width: targetNode.offsetWidth + 'px'
+                });
+                document.body.appendChild(ghostWrapper);
+
+                // 克隆节点
+                const clonedNode = targetNode.cloneNode(true);
+                
+                // 手动重绘 Canvas
+                const originalCanvases = targetNode.querySelectorAll('canvas');
+                const clonedCanvases = clonedNode.querySelectorAll('canvas');
+                originalCanvases.forEach((orig, index) => {
+                    if (clonedCanvases[index]) {
+                        clonedCanvases[index].width = orig.width;
+                        clonedCanvases[index].height = orig.height;
+                        clonedCanvases[index].getContext('2d').drawImage(orig, 0, 0);
+                    }
+                });
+
+                // 移除干扰样式
+                clonedNode.style.transform = 'none';
+                clonedNode.style.boxShadow = 'none';
+                clonedNode.style.margin = '0';
+                
+                ghostWrapper.appendChild(clonedNode);
+
+                // === 功能 2：处理文件名逻辑 ===
+                let finalFileName;
+                const chkDefault = document.getElementById('chk_default_filename');
+                const isDefaultName = chkDefault ? chkDefault.checked : true; // 防御性编程
+                
+                if (isDefaultName) {
+                    // 逻辑 A: 使用默认逻辑
+                    finalFileName = "HEU_Run_" + new Date().toISOString().slice(0,10);
+                    if (typeof fileNameArg === 'string') finalFileName = fileNameArg;
+                } else {
+                    // 逻辑 B: 使用自定义输入框
+                    const customInput = document.getElementById('inpt_custom_filename');
+                    finalFileName = customInput.value.trim() || ("HEU_Run_" + new Date().toISOString().slice(0,10));
+                }
+
+                // 确保后缀
+                if (!finalFileName.endsWith('.png')) finalFileName += '.png';
+
+                // 生成图片
+                html2canvas(clonedNode, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: null,
+                    logging: false
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = finalFileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    document.body.removeChild(ghostWrapper);
+                    console.log(`Saved as: ${finalFileName}`);
+                }).catch(err => {
+                    console.error("Export failed:", err);
+                    alert("生成失败，请重试");
+                    if (document.body.contains(ghostWrapper)) document.body.removeChild(ghostWrapper);
+                });
+            };
+        });
+    </script>
+</body>
 </html>
