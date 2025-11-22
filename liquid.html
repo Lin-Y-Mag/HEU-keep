@@ -30,12 +30,14 @@
     <div class="liquid-orb orb-2"></div>
 
     <div id="main-div">
-        <!-- 左侧：手机预览 -->
+        <!-- 左侧：手机预览 (被克隆的目标) -->
         <div id="new-Img" class="new-img glass-effect">
             <div class="bgimgwrap" id="bgimgwrap">
                 <img src="" class="innerbgimg" id="bg-img" alt="" />
             </div>
+            <!-- 这里的 gui-img 可能是 canvas 绘图，克隆时需要特殊处理 -->
             <img src="" id="gui-img" alt="" />
+            
             <div class="portrait-wrap" id="portrait-wrap">
                 <img class="portrait" id="portrait" src="" alt="" />
             </div>
@@ -58,19 +60,18 @@
         <div class="set-data">
             <div id="messageBox"></div>
 
-            <!-- 1. 顶部导出控制台 (新布局) -->
+            <!-- 导出控制区 -->
             <div class="glass-card export-panel">
                 <div class="export-grid">
-                    <!-- 主按钮 -->
+                    <!-- 这里的 Download1 是外部JS定义的函数，我们会兼容它 -->
                     <button onclick="Download(Download1)" class="btn-primary main-save">
                         <span class="icon"></span> 保存高清图片
                     </button>
+                    <!-- 预览等按钮保留原有逻辑 -->
                     <button onclick="Download(Download2)" class="btn-secondary main-preview">
                         <span class="icon"></span> 预览
                     </button>
-                    <!-- 备用方案 -->
                     <button onclick="Download(Download3)" class="btn-tiny backup-btn">备用方案 A</button>
-                    <button onclick="Download(Download4)" class="btn-tiny backup-btn">备用方案 B</button>
                 </div>
             </div>
 
@@ -80,177 +81,167 @@
                     <!-- 用户信息 -->
                     <div class="input-group">
                         <div class="group-title">基本信息</div>
-                    <li>
-                        <label>用户名</label>
-                        <input id="inpt_username" onchange="setData()" type="text" placeholder="输入昵称">
-                    </li>
-                    <li>
-                        <label>头像</label>
-                        <div class="file-action-row">
-                            <button onclick="inpt_portrait_onClick()" class="btn-small">上传</button>
-                            <button onclick="init_portrait()" class="btn-text">恢复默认</button>
-                            <input style="display:none;" type="file" accept="image/*" id="inpt_portrait" onchange="portrait_inpt()" />
+                        <li>
+                            <label>用户名</label>
+                            <input id="inpt_username" onchange="setData()" type="text" placeholder="输入昵称">
+                        </li>
+                        <li>
+                            <label>头像</label>
+                            <div class="file-action-row">
+                                <button onclick="inpt_portrait_onClick()" class="btn-small">上传</button>
+                                <button onclick="init_portrait()" class="btn-text">恢复默认</button>
+                                <input style="display:none;" type="file" accept="image/*" id="inpt_portrait" onchange="portrait_inpt()" />
+                            </div>
+                        </li>
+                        <li>
+                            <label>标题</label>
+                            <div class="input-with-prefix">
+                                <span class="prefix">keep • </span>
+                                <input id="inpt_keep_title" onchange="setData()" type="text" placeholder="户外跑步">
+                            </div>
+                        </li>
+                    </div>
+
+                    <!-- 运动数据 -->
+                    <div class="input-group">
+                        <div class="group-title">运动数据</div>
+                        <li>
+                            <label>里程 (km)</label>
+                            <input id="inpt_miles" onchange="setData()" type="text" class="font-mono" placeholder="0.00">
+                        </li>
+                        <div class="sub-setting">
+                            <span class="sub-label">随机范围:</span>
+                            <input type="text" id="min_miles" onchange="set_km_and_speed()" class="mini-input" placeholder="Min">
+                            <span class="dash">-</span>
+                            <input type="text" id="max_miles" onchange="set_km_and_speed()" class="mini-input" placeholder="Max">
                         </div>
-                    </li>
-                    <li>
-                        <label>标题</label>
-                        <div class="input-with-prefix">
-                            <span class="prefix">keep • </span>
-                            <input id="inpt_keep_title" onchange="setData()" type="text" placeholder="户外跑步">
+
+                        <li style="margin-top: 12px;">
+                            <label>配速</label>
+                            <input id="inpt_speeds" onchange="setData()" type="text" class="font-mono" placeholder="5'30&quot;">
+                        </li>
+                        <div class="sub-setting">
+                            <span class="sub-label">随机范围:</span>
+                            <input type="text" id="min_speeds" onchange="set_km_and_speed()" class="mini-input" placeholder="快">
+                            <span class="dash">-</span>
+                            <input type="text" id="max_speeds" onchange="set_km_and_speed()" class="mini-input" placeholder="慢">
                         </div>
-                    </li>
-            </div>
+                    </div>
 
-            <!-- 运动数据 -->
-            <div class="input-group">
-                <div class="group-title">运动数据</div>
-                <li>
-                    <label>里程 (km)</label>
-                    <input id="inpt_miles" onchange="setData()" type="text" class="font-mono" placeholder="0.00">
-                </li>
-                <div class="sub-setting">
-                    <span class="sub-label">随机范围:</span>
-                    <input type="text" id="min_miles" onchange="set_km_and_speed()" class="mini-input" placeholder="Min">
-                    <span class="dash">-</span>
-                    <input type="text" id="max_miles" onchange="set_km_and_speed()" class="mini-input" placeholder="Max">
+                    <!-- 时间与环境 -->
+                    <div class="input-group">
+                        <div class="group-title">时间与环境</div>
+                        <li>
+                            <label>时间</label>
+                            <div class="datetime-row">
+                                <input id="inpt_year" onchange="setData()" type="text" class="year-inp"><span>/</span>
+                                <input id="inpt_month" onchange="setData()" type="text" class="date-inp"><span>/</span>
+                                <input id="inpt_day" onchange="setData()" type="text" class="date-inp">
+                                <span class="spacer"></span>
+                                <input id="inpt_hour" onchange="setData()" type="text" class="time-inp"><span>:</span>
+                                <input id="inpt_min" onchange="setData()" type="text" class="time-inp">
+                            </div>
+                        </li>
+                        <li>
+                            <label>天气</label>
+                            <select onchange="weather_Select_onChange()" id="weather_Select">
+                                <option value="images/weather1.png">晴</option>
+                                <option value="images/weather2.png">多云</option>
+                                <option value="images/weather3.png">阴天</option>
+                            </select>
+                        </li>
+                        <li>
+                            <label>温湿度</label>
+                            <div class="dual-input">
+                                <input id="inpt_temperature" onchange="setData()" type="text" class="mini-input" placeholder="°C">
+                                <span class="unit">°C</span>
+                                <input id="inpt_humidity" onchange="setData()" type="text" class="mini-input" placeholder="%">
+                                <span class="unit"></span>
+                            </div>
+                        </li>
+                    </div>
+
+                    <!-- 地图与轨迹 -->
+                    <div class="input-group">
+                        <div class="group-title">地图与轨迹</div>
+                        <li>
+                            <label>背景</label>
+                            <select onchange="default_bgImgSelect_onChange()" id="default_bgImgSelect">
+                                <option value="guiji_Select_1">南体育场</option>
+                                <option value="guiji_Select_2">军工操场</option>
+                                <option value="guiji_Select_3">北体育场</option>
+                            </select>
+                        </li>
+                        <li>
+                            <label>自定义</label>
+                            <div class="file-action-row">
+                                <button onclick="inpt_bgimg_onClick()" class="btn-small">上传地图</button>
+                                <button onclick="init_bgimg()" class="btn-text">重置</button>
+                                <input style="display:none;" type="file" accept="image/*" id="inpt_bgimg" onchange="bgimg_inpt()" />
+                            </div>
+                        </li>
+
+                        <li>
+                            <label>样式</label>
+                            <div class="flex-group" style="display:flex; gap:8px; align-items:center; flex:1;">
+                                <select onchange="guijiSelect_onChange()" id="guiji_Select_1" class="guijiSelect">
+                                    <option value="['images/bg1_1.png', 'images/bg1_empty2.png']">样式 1</option>
+                                    <option value="['images/bg1_2.png', 'images/bg1_empty2.png']">样式 2</option>
+                                    <option value="['images/bg1_3.png', 'images/bg1_empty2.png']">样式 3</option>
+                                    <option value="['images/bg1_4.png', 'images/bg1_empty2.png']">样式 4</option>
+                                    <option value="['images/bg1_5.png', 'images/bg1_empty2.png']">样式 5</option>
+                                    <option value="['images/bg1_empty2.png', 'images/bg1_empty2.png']">默认</option>
+                                </select>
+                                <button onclick="drawMine()" class="btn-small btn-secondary" title="生成随机路径">随机</button>
+                                <select onchange="guijiSelect_onChange()" id="guiji_Select_2" class="guijiSelect" style="display:none;">
+                                    <option value="['images/bg2_empty.png', 'images/bg2_empty.png']">默认</option>
+                                </select>
+                                <select onchange="guijiSelect_onChange()" id="guiji_Select_3" class="guijiSelect" style="display:none;">
+                                    <option value="['images/bg3_empty.png', 'images/bg3_empty.png']">默认</option>
+                                </select>
+                            </div>
+                        </li>
+
+                        <li class="switch-row">
+                            <div class="switch-item">
+                                <input type="checkbox" id="auto_draw_checkbox" onchange="auto_draw_checkbox_onchange()" checked />
+                                <span>自动生成</span>
+                            </div>
+                            <div class="switch-item">
+                                <input type="checkbox" id="inpt_colorchange_checkbox" onchange="inpt_colorchange_checkbox_onchange()" checked />
+                                <span>渐变色</span>
+                            </div>
+                        </li>
+                        <div class="sub-setting" id="bs_prop_inpt_wrap">
+                            <span class="sub-label">变色概率:</span>
+                            <input id="inpt_bs_prob" onchange="setData()" type="text" class="mini-input" placeholder="0.5">
+                        </div>
+                        <div class="sub-setting" id="inpt_bs_range_wrap">
+                            <span class="sub-label">变色步长:</span>
+                            <input id="inpt_bs_range_min" onchange="setData()" type="text" class="mini-input">
+                            <span class="dash">-</span>
+                            <input id="inpt_bs_range_max" onchange="setData()" type="text" class="mini-input">
+                        </div>
+                    </div>
+
+                    <!-- 输出尺寸 -->
+                    <div class="input-group no-border">
+                        <li>
+                            <label>宽度</label>
+                            <input id="inpt_savePic_width" onchange="setData()" type="text" placeholder="默认" style="min-width:80px;">
+                            <span class="unit">px</span>
+                        </li>
+                    </div>
+
+                </ul>
+
+                <div class="divider"></div>
+                <div class="system-actions">
+                    <button onclick="storeToIndexedDB(tmp_portrait_src,tmp_bgimg_osrc)" class="btn-text">保存配置</button>
+                    <button onclick="clearIndexedDB()" class="btn-text btn-danger-text">重置</button>
                 </div>
-
-                <li style="margin-top: 12px;">
-                    <label>配速</label>
-                    <input id="inpt_speeds" onchange="setData()" type="text" class="font-mono" placeholder="5'30&quot;">
-                </li>
-                <div class="sub-setting">
-                    <span class="sub-label">随机范围:</span>
-                    <input type="text" id="min_speeds" onchange="set_km_and_speed()" class="mini-input" placeholder="快">
-                    <span class="dash">-</span>
-                    <input type="text" id="max_speeds" onchange="set_km_and_speed()" class="mini-input" placeholder="慢">
-                </div>
-            </div>
-
-            <!-- 时间与环境 -->
-            <div class="input-group">
-                <div class="group-title">时间与环境</div>
-                <li>
-                    <label>时间</label>
-                    <div class="datetime-row">
-                        <input id="inpt_year" onchange="setData()" type="text" class="year-inp"><span>/</span>
-                        <input id="inpt_month" onchange="setData()" type="text" class="date-inp"><span>/</span>
-                        <input id="inpt_day" onchange="setData()" type="text" class="date-inp">
-                        <span class="spacer"></span>
-                        <input id="inpt_hour" onchange="setData()" type="text" class="time-inp"><span>:</span>
-                        <input id="inpt_min" onchange="setData()" type="text" class="time-inp">
-                    </div>
-                </li>
-                <li>
-                    <label>天气</label>
-                    <select onchange="weather_Select_onChange()" id="weather_Select">
-                        <option value="images/weather1.png">晴</option>
-                        <option value="images/weather2.png">多云</option>
-                        <option value="images/weather3.png">阴天</option>
-                    </select>
-                </li>
-                <li>
-                    <label>温湿度</label>
-                    <div class="dual-input">
-                        <input id="inpt_temperature" onchange="setData()" type="text" class="mini-input" placeholder="°C">
-                        <span class="unit">°C</span>
-                        <input id="inpt_humidity" onchange="setData()" type="text" class="mini-input" placeholder="%">
-                        <span class="unit"></span>
-                    </div>
-                </li>
-            </div>
-
-            <!-- 地图与轨迹 -->
-            <div class="input-group">
-                <div class="group-title">地图与轨迹</div>
-                <li>
-                    <label>背景</label>
-                    <select onchange="default_bgImgSelect_onChange()" id="default_bgImgSelect">
-                        <option value="guiji_Select_1">南体育场</option>
-                        <option value="guiji_Select_2">军工操场</option>
-                        <option value="guiji_Select_3">北体育场</option>
-                    </select>
-                </li>
-                <li>
-                    <label>自定义</label>
-                    <div class="file-action-row">
-                        <button onclick="inpt_bgimg_onClick()" class="btn-small">上传地图</button>
-                        <button onclick="init_bgimg()" class="btn-text">重置</button>
-                        <input style="display:none;" type="file" accept="image/*" id="inpt_bgimg" onchange="bgimg_inpt()" />
-                    </div>
-                </li>
-
-                <!-- 轨迹样式与随机按钮整合 -->
-                <li>
-                    <label>样式</label>
-                    <div class="flex-group" style="display:flex; gap:8px; align-items:center; flex:1;">
-                        <select onchange="guijiSelect_onChange()" id="guiji_Select_1" class="guijiSelect">
-                            <option value="['images/bg1_1.png', 'images/bg1_empty2.png']">样式 1</option>
-                            <option value="['images/bg1_2.png', 'images/bg1_empty2.png']">样式 2</option>
-                            <option value="['images/bg1_3.png', 'images/bg1_empty2.png']">样式 3</option>
-                            <option value="['images/bg1_4.png', 'images/bg1_empty2.png']">样式 4</option>
-                            <option value="['images/bg1_5.png', 'images/bg1_empty2.png']">样式 5</option>
-                            <option value="['images/bg1_empty2.png', 'images/bg1_empty2.png']">默认</option>
-                        </select>
-                        <!-- 随机按钮移至此处 -->
-                        <button onclick="drawMine()" class="btn-small btn-secondary" title="生成随机路径">随机</button>
-
-                        <!-- 隐藏Select -->
-                        <select onchange="guijiSelect_onChange()" id="guiji_Select_2" class="guijiSelect" style="display:none;">
-                            <option value="['images/bg2_empty.png', 'images/bg2_empty.png']">默认</option>
-                        </select>
-                        <select onchange="guijiSelect_onChange()" id="guiji_Select_3" class="guijiSelect" style="display:none;">
-                            <option value="['images/bg3_empty.png', 'images/bg3_empty.png']">默认</option>
-                        </select>
-                    </div>
-                </li>
-
-                <!-- 选项开关 -->
-                <li class="switch-row">
-                    <div class="switch-item">
-                        <input type="checkbox" id="auto_draw_checkbox" onchange="auto_draw_checkbox_onchange()" checked />
-                        <span>自动生成</span>
-                    </div>
-                    <div class="switch-item">
-                        <input type="checkbox" id="inpt_colorchange_checkbox" onchange="inpt_colorchange_checkbox_onchange()" checked />
-                        <span>渐变色</span>
-                    </div>
-                </li>
-                <div class="sub-setting" id="bs_prop_inpt_wrap">
-                    <span class="sub-label">变色概率:</span>
-                    <input id="inpt_bs_prob" onchange="setData()" type="text" class="mini-input" placeholder="0.5">
-                </div>
-                <div class="sub-setting" id="inpt_bs_range_wrap">
-                    <span class="sub-label">变色步长:</span>
-                    <input id="inpt_bs_range_min" onchange="setData()" type="text" class="mini-input">
-                    <span class="dash">-</span>
-                    <input id="inpt_bs_range_max" onchange="setData()" type="text" class="mini-input">
-                </div>
-            </div>
-
-            <!-- 输出尺寸 -->
-            <div class="input-group no-border">
-                <li>
-                    <label>宽度</label>
-                    <input id="inpt_savePic_width" onchange="setData()" type="text" placeholder="默认" style="min-width:80px;">
-                    <span class="unit">px</span>
-                </li>
-            </div>
-
-            </ul>
-
-            <!-- 底部系统操作 -->
-            <div class="divider"></div>
-            <div class="system-actions">
-                <button onclick="storeToIndexedDB(tmp_portrait_src,tmp_bgimg_osrc)" class="btn-text">
-                    保存配置
-                </button>
-                <button onclick="clearIndexedDB()" class="btn-text btn-danger-text">
-                    重置
-                </button>
             </div>
         </div>
-    </div>
     </div>
 
     <!-- JS 引用 -->
@@ -263,102 +254,103 @@
     <script src="js/dataURLtoBlob.js" defer></script>
     <script src="js/img_both_inpt_set.js" defer></script>
     <script src="js/draw_personalization.js" defer></script>
+    <!-- 注意：download_img.js 里的函数会被下面的脚本覆盖，这是正常的 -->
     <script src="js/download_img.js" defer></script>
     <script src="js/localTrackGen.js"></script>
     <script src="js/drawMine.js" defer></script>
     <script src="js/onload.js" defer></script>
 
+    <!-- 🌟 终极修复：离屏克隆生成器 -->
     <script>
-    /**
-     * 核心思路：克隆节点 -> 放入隐藏容器 -> 去除特效 -> 生成图片 -> 销毁容器
-     */
-    window.Download = function(fileNameFunc) {
-        // 1. 获取原始的 DOM 节点
-        const originalNode = document.getElementById('new-Img');
-        if (!originalNode) {
-            alert("未找到要生成的元素");
-            return;
-        }
+        window.addEventListener('load', function() {
+            console.log("Liquid Fix: Off-screen renderer loaded.");
 
-        // 2. 创建一个隐藏的容器 (Ghost Container)
-        // 这个容器用来放置我们的“克隆体”，位置在屏幕可视区域之外
-        const ghostContainer = document.createElement('div');
-        ghostContainer.style.position = 'absolute';
-        ghostContainer.style.top = '-9999px'; // 移出屏幕
-        ghostContainer.style.left = '-9999px';
-        ghostContainer.style.zIndex = '-1';
-        // 强制设置容器宽度，确保生成的图片是标准的手机宽度 (例如 1080px 或原始宽度)
-        // 如果这里不设宽度，可能会因为屏幕宽度不同导致换行错乱
-        ghostContainer.style.width = originalNode.offsetWidth + 'px'; 
-        
-        document.body.appendChild(ghostContainer);
+            // 覆盖原有的 Download 函数
+            window.Download = function(fileNameArg) {
+                const targetNode = document.getElementById('new-Img');
+                if (!targetNode) return;
 
-        // 3. 深度克隆节点
-        const clonedNode = originalNode.cloneNode(true);
-        
-        // 【重要】Canvas 元素特殊处理
-        // cloneNode 无法克隆 canvas 的内容，必须手动把原图画过去
-        // 如果你的轨迹图是用 canvas 画的，这一步必不可少
-        const originalCanvases = originalNode.querySelectorAll('canvas');
-        const clonedCanvases = clonedNode.querySelectorAll('canvas');
-        originalCanvases.forEach((orig, index) => {
-            if (clonedCanvases[index]) {
-                const destCtx = clonedCanvases[index].getContext('2d');
-                destCtx.drawImage(orig, 0, 0);
-            }
+                // 1. 创建幽灵容器 (Ghost Container)
+                // 这个容器位于屏幕外，用于放置我们的克隆体
+                const ghostWrapper = document.createElement('div');
+                ghostWrapper.style.position = 'fixed';
+                ghostWrapper.style.top = '-9999px';
+                ghostWrapper.style.left = '-9999px';
+                ghostWrapper.style.zIndex = '-1000';
+                // 锁定宽度，防止因容器变化导致内容换行
+                ghostWrapper.style.width = targetNode.offsetWidth + 'px';
+                document.body.appendChild(ghostWrapper);
+
+                // 2. 深度克隆节点
+                const clonedNode = targetNode.cloneNode(true);
+
+                // 3. 关键：手动重绘 Canvas 内容
+                // cloneNode 不会复制 canvas 的绘图状态，必须手动把原图画过去
+                const originalCanvases = targetNode.querySelectorAll('canvas');
+                const clonedCanvases = clonedNode.querySelectorAll('canvas');
+                originalCanvases.forEach((orig, index) => {
+                    if (clonedCanvases[index]) {
+                        const destCtx = clonedCanvases[index].getContext('2d');
+                        // 确保尺寸一致
+                        clonedCanvases[index].width = orig.width;
+                        clonedCanvases[index].height = orig.height;
+                        destCtx.drawImage(orig, 0, 0);
+                    }
+                });
+
+                // 4. 净化克隆体样式
+                // 这里移除所有导致 html2canvas 崩溃的特效
+                clonedNode.style.transform = 'none';       // 移除缩放
+                clonedNode.style.boxShadow = 'none';       // 移除阴影
+                clonedNode.style.margin = '0';             // 移除边距
+                clonedNode.style.transition = 'none';      // 移除动画
+                
+                // 确保背景正确 (防止背景透明变黑)
+                if (getComputedStyle(targetNode).backgroundColor === 'rgba(0, 0, 0, 0)') {
+                   // 如果原背景透明，保持透明或设为白色，视需求而定
+                }
+
+                ghostWrapper.appendChild(clonedNode);
+
+                // 5. 确定文件名
+                let fileName = "HEU_Run_" + new Date().toISOString().slice(0,10) + ".png";
+                // 兼容原代码传入的 Download1 函数或字符串
+                if (typeof fileNameArg === 'function') {
+                    try { fileName = fileNameArg(); } catch (e) {}
+                } else if (typeof fileNameArg === 'string') {
+                    fileName = fileNameArg;
+                }
+                // 确保后缀名
+                if (!fileName.endsWith('.png')) fileName += '.png';
+
+                // 6. 调用 html2canvas
+                // 因为克隆体没有特效，这里渲染会非常快且准确
+                html2canvas(clonedNode, {
+                    scale: 2,          // 2倍高清
+                    useCORS: true,     // 跨域支持
+                    backgroundColor: null, // 保持透明背景
+                    logging: false
+                }).then(canvas => {
+                    // 7. 触发下载
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // 8. 清理
+                    document.body.removeChild(ghostWrapper);
+                    console.log("Download success.");
+                }).catch(err => {
+                    console.error("生成失败:", err);
+                    alert("生成失败，请检查网络或图片跨域设置");
+                    if (document.body.contains(ghostWrapper)) {
+                        document.body.removeChild(ghostWrapper);
+                    }
+                });
+            };
         });
-
-        // 4. 清洗克隆体的样式 (只改克隆体，不改原界面！)
-        // 移除缩放、阴影、边距，确保是平整的一张图
-        clonedNode.style.transform = 'none';
-        clonedNode.style.boxShadow = 'none';
-        clonedNode.style.margin = '0';
-        clonedNode.style.borderRadius = '0'; // 如果需要直角边
-        // 确保背景是透明或原来的颜色
-        clonedNode.style.background = getComputedStyle(originalNode).background;
-
-        // 将克隆体加入隐藏容器
-        ghostContainer.appendChild(clonedNode);
-
-        // 5. 使用 html2canvas 对“克隆体”进行渲染
-        const options = {
-            scale: 2, // 2倍清晰度
-            useCORS: true, // 允许跨域图片
-            backgroundColor: null, // 保持透明背景
-            logging: false // 关闭日志
-        };
-
-        // 如果你需要根据不同的按钮下载不同的名字，可以在这里处理 fileNameFunc
-        // 这里假设 fileNameFunc 只是一个标识
-        
-        html2canvas(clonedNode, options).then(canvas => {
-            // 6. 生成图片数据
-            const imgData = canvas.toDataURL('image/png');
-            
-            // 7. 触发下载
-            const link = document.createElement('a');
-            link.href = imgData;
-            
-            // 生成文件名 (这里简单模拟了你原本的逻辑)
-            const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,"");
-            link.download = "HEU_Run_" + dateStr + ".png";
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // 8. 清理案发现场 (删除隐藏容器)
-            document.body.removeChild(ghostContainer);
-            console.log("高清图片生成完毕");
-        }).catch(err => {
-            console.error("生成失败:", err);
-            alert("图片生成失败，请重试");
-            // 出错也要清理
-            if(document.body.contains(ghostContainer)) {
-                document.body.removeChild(ghostContainer);
-            }
-        });
-    };
-</script>
+    </script>
 </body>
 </html>
