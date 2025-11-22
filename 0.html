@@ -2,8 +2,6 @@
 <html lang="zh-CN">
 
 <head>
-    <!-- 谷歌统计 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4C56GQP4ZL"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
@@ -13,26 +11,313 @@
 
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!-- 优化视口设置，禁止用户缩放，体验更像原生App -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     
-    <title>HEU人最后的倔强</title>
+    <title>HEU人最后的倔强 ver.0</title>
     <link rel="icon" href="./favicon.ico">
     <link rel="shortcut icon" href="./favicon.ico">
     <link rel="stylesheet" href="./css/styles.css">
-
-    <!-- 🚀 性能优化：预加载核心数字字体，防止加载时数字跳变 -->
     <link rel="preload" href="./DINCond-Bold.otf" as="font" type="font/otf" crossorigin>
+
+    <style>
+        /* =========================================
+           Liquid Glass 风格样式重写
+           ========================================= */
+
+        /* 1. 按钮样式 (Button) */
+        button, .one_click, .flush-btn, .storeToIndexedDB-btn, .clear-btn, .inpt-btn, .init-btn, .large-btn {
+            border: none !important;
+            outline: none !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(12px) saturate(150%);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
+            border-radius: 30px !important;
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+                inset 0 -1px 0 0 rgba(255, 255, 255, 0.2),
+                inset 0 0 20px rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            color: #333 !important;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+            font-weight: 600 !important;
+            font-family: system-ui, -apple-system, sans-serif;
+            letter-spacing: 0.5px;
+            padding: 8px 16px !important;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1;
+        }
+
+        button:hover, .one_click:hover, .flush-btn:hover, .large-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            background: rgba(255, 255, 255, 0.25) !important;
+            box-shadow:
+                0 10px 20px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+                inset 0 -1px 0 0 rgba(255, 255, 255, 0.3),
+                inset 0 0 20px rgba(255, 255, 255, 0.2) !important;
+        }
+
+        button:active {
+            transform: translateY(1px) scale(0.98);
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(6px);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* 2. 极致拟真的 Liquid Glass 滑动开关 */
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            
+            /* 尺寸设置 */
+            width: 60px;
+            height: 30px;
+            border-radius: 20px; /* Squircle 风格 */
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            cursor: pointer;
+            margin-right: 8px;
+            
+            /* 背景：未选中时是暗色半透明玻璃 */
+            background: rgba(50, 50, 50, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            
+            /* 关键： Lip Bezel (唇形边框) 模拟
+               利用内阴影创造“中间凹陷”的槽体感 */
+            box-shadow:
+                /* 顶部深色内阴影，模拟凹槽深度 */
+                inset 0 4px 6px rgba(0, 0, 0, 0.25),
+                /* 底部亮色反光，模拟玻璃边缘折射 */
+                inset 0 -2px 4px rgba(255, 255, 255, 0.2),
+                /* 外部极细高光 */
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+                
+            border: none; /* 使用 box-shadow 代替 border 以获得更平滑的效果 */
+            transition: all 0.4s ease;
+        }
+
+        /* 滑块 (Thumb) */
+        input[type="checkbox"]::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 1.6px;
+            border-radius: 20px; /* Squircle 风格 */
+
+            width: 34px;
+            height: 26px;
+            /*border-radius: 50%;*/
+            
+            /* 纯白滑块 */
+            background: #ffffff;
+            
+            /* 滑块立体感 */
+            box-shadow:
+                0 2px 5px rgba(0, 0, 0, 0.2),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.1); /* 增加微弱的体积感 */
+                
+            transform: translateX(0);
+            /* 使用弹性物理动画曲线 (Spring) */
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* 选中状态 (Liquid Green) */
+        input[type="checkbox"]:checked {
+            /* 饱满的绿色背景 */
+            background: #34C759;
+            
+            /* 选中时保留凹陷感，但在绿色液体下更加通透 */
+            box-shadow:
+                inset 0 3px 6px rgba(0, 0, 0, 0.15), /* 内部阴影变淡 */
+                inset 0 -2px 4px rgba(255, 255, 255, 0.25), /* 底部反光增强 */
+                0 0 0 1px rgba(52, 199, 89, 0.3); /* 外部绿色光晕 */
+        }
+
+        /* 选中时滑块移动 */
+        input[type="checkbox"]:checked::after {
+            transform: translateX(22px);
+            background: #fff;
+            box-shadow:
+                0 2px 5px rgba(0, 0, 0, 0.25);
+        }
+
+        /* 悬停交互 */
+        input[type="checkbox"]:hover {
+            filter: brightness(1.05);
+        }
+
+        /* 3. 布局与文字微调 */
+        .header-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .header-container button {
+            margin: 0 !important;
+            flex: 1 1 auto;
+        }
+        .large-btn {
+            width: 100%;
+            font-size: 16px;
+            padding: 12px 0 !important;
+            background: rgba(255, 255, 255, 0.25) !important;
+        }
+        .background-green button, .background-blue button {
+            color: #222 !important;
+        }
+        
+        /* 按钮流光特效 */
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            transition: none;
+            pointer-events: none;
+        }
+        button:hover::after {
+            left: 150%;
+            transition: all 0.7s ease;
+        }
+        /* =========================================
+                   3. Liquid Glass 容器卡片与布局重构
+                   ========================================= */
+
+                /* 布局容器：改为弹性布局，支持双栏显示 */
+                .setDataList {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 16px; /* 卡片之间的间距 */
+                    padding: 0 5px;
+                    justify-content: space-between;
+                }
+
+                /* 通用玻璃卡片样式 (覆盖原有的 .background-green/blue 等) */
+                .background-green,
+                .background-blue,
+                .background-color-block2,
+                .weather-container {
+                    /* 1. 宽度减半逻辑：(100% / 2) - 间隙微调 */
+                    flex: 1 1 calc(50% - 20px);
+                    min-width: 340px; /* 屏幕太窄时自动变回单栏，防止内容挤压 */
+                    margin-bottom: 0 !important; /* 清除原有边距 */
+                    
+                    /* 2. 核心 Liquid Glass 材质 */
+                    background: rgba(255, 255, 255, 0.4) !important; /* 更通透的白色 */
+                    backdrop-filter: blur(20px) saturate(180%);
+                    -webkit-backdrop-filter: blur(20px) saturate(180%);
+                    
+                    /* 3. 边框与光影 */
+                    border-radius: 24px !important;
+                    border: 1px solid rgba(255, 255, 255, 0.6) !important; /* 亮边框 */
+                    border-left: 1px solid rgba(255, 255, 255, 0.6) !important; /* 覆盖掉原本的粗色条 */
+                    box-shadow:
+                        0 8px 32px 0 rgba(31, 38, 135, 0.05), /* 柔和阴影 */
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.8), /* 顶部高光 */
+                        inset 0 0 20px rgba(255, 255, 255, 0.1);
+                        
+                    /* 内部布局 */
+                    padding: 20px !important;
+                    box-sizing: border-box;
+                    transition: none; /* 禁止容器整体移动，满足"鼠标悬停只触发按钮" */
+                }
+
+                /* 针对天气容器的特殊处理（因为它包裹了另一个div） */
+                .weather-container .background-color-block2 {
+                    width: 100% !important;
+                    box-shadow: none !important;
+                    border: none !important;
+                    background: transparent !important;
+                    padding: 0 !important;
+                    backdrop-filter: none;
+                }
+
+                /* =========================================
+                   4. 玻璃质感输入框 (Input Fields)
+                   让输入框看起来像是在玻璃上雕刻的凹槽
+                   ========================================= */
+                .setDataList input[type="text"],
+                .setDataList select {
+                    /* 凹槽质感 */
+                    background: rgba(0, 0, 0, 0.03) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                    border-radius: 12px !important;
+                    
+                    /* 内阴影创造深度 */
+                    box-shadow:
+                        inset 0 2px 4px rgba(0, 0, 0, 0.06),
+                        0 1px 0 rgba(255, 255, 255, 0.5) !important;
+                    
+                    /* 文字样式 */
+                    color: #333;
+                    font-family: inherit;
+                    padding: 8px 12px !important;
+                    height: auto !important;
+                    transition: all 0.3s ease;
+                }
+
+                /* 输入框聚焦状态：发光 */
+                .setDataList input[type="text"]:focus,
+                .setDataList select:focus {
+                    background: rgba(255, 255, 255, 0.8) !important;
+                    box-shadow:
+                        0 0 0 4px rgba(255, 255, 255, 0.5),
+                        0 4px 12px rgba(0,0,0,0.1) !important;
+                    border-color: #fff !important;
+                }
+
+                /* 修复列表项的间距 */
+                .setDataList li {
+                    margin-bottom: 12px;
+                    display: flex;
+                    align-items: center;
+                    flex-wrap: wrap;
+                }
+                
+                /* 标签文字优化 */
+                .setDataList li label {
+                    font-weight: 600;
+                    color: #444;
+                    opacity: 0.8;
+                    margin-right: 8px;
+                    min-width: 70px; /* 保证对齐 */
+                }
+                
+                /* 特殊处理：范围输入框的小容器 */
+                .background-color-block1 {
+                    background: rgba(0, 0, 0, 0.03) !important;
+                    border-radius: 12px;
+                    padding: 10px;
+                    margin-top: 8px;
+                    width: 100%;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                }
+                
+                .range-input {
+                    width: 60px !important;
+                    text-align: center;
+                }
+    </style>
 </head>
 
 <body id="body">
 
     <div id="main-div">
-        <!-- =========================================
-             左侧：预览图区域 (核心区域，严禁修改结构以保证还原度)
-             ========================================= -->
         <div id="new-Img" class="new-img">
             <div class="bgimgwrap" id="bgimgwrap">
                 <img src="" class="innerbgimg" id="bg-img" alt="背景图" />
@@ -56,19 +341,16 @@
             <span class="speed-time calorie" id="calorie">0</span>
         </div>
 
-        <!-- =========================================
-             右侧：控制面板区域 (已优化交互文案)
-             ========================================= -->
         <div class="set-data">
             <div id="messageBox"></div>
             
-            <!-- 顶部快捷操作栏 -->
+            <!-- 顶部快捷操作栏 (已移除 Emoji) -->
             <div class="header-container">
-                <button onclick="Download(Download1)" class="one_click">⬇️ 保存图片</button>
-                <button onclick="Download(Download2)" class="one_click">👁️ 预览效果</button>
-                <button onclick="drawMine()" class="flush-btn">🔄 随机路径</button>
-                <button onclick="storeToIndexedDB(tmp_portrait_src,tmp_bgimg_osrc)" class="storeToIndexedDB-btn" title="保存用户名、头像等常用信息到浏览器">💾 保存设置</button>
-                <button onclick="clearIndexedDB()" class="clear-btn">🗑️ 重置所有</button>
+                <button onclick="Download(Download1)" class="one_click">保存图片</button>
+                <button onclick="Download(Download2)" class="one_click">预览效果</button>
+                <button onclick="drawMine()" class="flush-btn">随机路径</button>
+                <button onclick="storeToIndexedDB(tmp_portrait_src,tmp_bgimg_osrc)" class="storeToIndexedDB-btn" title="保存用户名、头像等常用信息到浏览器">保存设置</button>
+                <button onclick="clearIndexedDB()" class="clear-btn">重置所有</button>
             </div>
 
             <ul class="setDataList">
@@ -95,7 +377,7 @@
                 <div class="background-blue">
                     <li>
                         <label>主里程(km)：</label>
-                        <input id="inpt_miles" onchange="setData()" class="mile2-inp" placeholder="显示值">
+                        <input id="inpt_miles" onchange="setData()" type="text" class="mile2-inp" placeholder="显示值">
                         <div class="background-color-block1">
                             <small>随机范围 (用于生成截图时微调)：</small><br>
                             最小: <input type="text" id="min_miles" onchange="set_km_and_speed()" class="mile2-inp range-input">
@@ -105,7 +387,6 @@
                     <li>
                         <label>配速：</label>
                         <input id="inpt_speeds" onchange="setData()" type="text" class="mile2-inp" placeholder="例如 5'30&quot;">
-                        <!-- 修复优化：增加正确的 placeholder 提示 -->
                         <div class="background-color-block1">
                             <small>随机范围 (注意: 秒数不要超过59)：</small><br>
                             最快: <input type="text" id="min_speeds" onchange="set_km_and_speed()" class="mile2-inp range-input" placeholder="4'30&quot;">
@@ -130,17 +411,18 @@
                     <div class="background-color-block2">
                         <li>
                             <label>天气环境：</label>
+                            <!-- 选项已移除 Emoji -->
                             <select onchange="weather_Select_onChange()" id="weather_Select">
-                                <option value="images/weather1.png">☀ 晴</option>
-                                <option value="images/weather2.png">⛅ 多云</option>
-                                <option value="images/weather3.png">☁ 阴天</option>
+                                <option value="images/weather1.png">晴</option>
+                                <option value="images/weather2.png">多云</option>
+                                <option value="images/weather3.png">阴天</option>
                             </select>
                         </li>
                         <li>
                             <label>气温/湿度：</label>
-                            <input id="inpt_temperature" onchange="setData()" type="text" style="width:50px;" placeholder="°C"> °C
+                            <input id="inpt_temperature" onchange="setData()" type="text" style="width:45px;" placeholder="°C"> °C
                             &nbsp;&nbsp;
-                            <input id="inpt_humidity" onchange="setData()" type="text" style="width:50px;" placeholder="%"> %
+                            <input id="inpt_humidity" onchange="setData()" type="text" style="width:57px;" placeholder="%">
                             <span class="ApiExplanation" style="display:inline-block; margin-left:10px;">(默认自动获取实时数据)</span>
                         </li>
                     </div>
@@ -151,7 +433,7 @@
                     <li>
                         <label>地图背景：</label>
                         <select onchange="default_bgImgSelect_onChange()" id="default_bgImgSelect">
-                            <option value="guiji_Select_1">哈尔滨工程大学-南体育场</option>
+                            <option value="guiji_Select_1">南体育场</option>
                             <option value="guiji_Select_2">军工操场</option>
                             <option value="guiji_Select_3">北体育场</option>
                         </select>
@@ -165,23 +447,22 @@
 
                     <li>
                         <label>轨迹样式：</label>
-                        <!-- 预设轨迹选择组 -->
                         <select onchange="guijiSelect_onChange()" id="guiji_Select_1" class="guijiSelect">
-                            <option value="['images/bg1_1.png', 'images/bg1_empty2.png']">预设路径 1</option>
-                            <option value="['images/bg1_2.png', 'images/bg1_empty2.png']">预设路径 2</option>
-                            <option value="['images/bg1_3.png', 'images/bg1_empty2.png']">预设路径 3</option>
-                            <option value="['images/bg1_4.png', 'images/bg1_empty2.png']">预设路径 4</option>
-                            <option value="['images/bg1_5.png', 'images/bg1_empty2.png']">预设路径 5</option>
-                            <option value="['images/bg1_empty2.png', 'images/bg1_empty2.png']">无预设</option>
+                            <option value="['images/bg1_1.png', 'images/bg1_empty2.png']">路径 1</option>
+                            <option value="['images/bg1_2.png', 'images/bg1_empty2.png']">路径 2</option>
+                            <option value="['images/bg1_3.png', 'images/bg1_empty2.png']">路径 3</option>
+                            <option value="['images/bg1_4.png', 'images/bg1_empty2.png']">路径 4</option>
+                            <option value="['images/bg1_5.png', 'images/bg1_empty2.png']">路径 5</option>
+                            <option value="['images/bg1_empty2.png', 'images/bg1_empty2.png']">默认</option>
                         </select>
                         <select onchange="guijiSelect_onChange()" id="guiji_Select_2" class="guijiSelect">
-                            <option value="['images/bg2_empty.png', 'images/bg2_empty.png']">无预设</option>
+                            <option value="['images/bg2_empty.png', 'images/bg2_empty.png']">默认</option>
                         </select>
                         <select onchange="guijiSelect_onChange()" id="guiji_Select_3" class="guijiSelect">
-                            <option value="['images/bg3_empty.png', 'images/bg3_empty.png']">无预设</option>
+                            <option value="['images/bg3_empty.png', 'images/bg3_empty.png']">默认</option>
                         </select>
                         
-                        <button onclick="inpt_drawbtn_onClick()" style="margin-left: 10px;">✍️ 手绘轨迹</button>
+                        <button onclick="inpt_drawbtn_onClick()" style="margin-left: 10px;">手绘轨迹</button>
                     </li>
                     
                     <!-- 轨迹选项 -->
@@ -197,7 +478,7 @@
                     </li>
                     <li id="bs_prop_inpt_wrap">
                         <label>变色概率：</label>
-                        <input id="inpt_bs_prob" onchange="setData()" type="text" placeholder="0-1之间">
+                        <input id="inpt_bs_prob" onchange="setData()" type="text" style="width: 70px;" placeholder="0-1之间">
                     </li>
                     <li id="inpt_bs_range_wrap">
                         <label>变色步长：</label>
@@ -210,13 +491,13 @@
                 <div class="background-green">
                     <li>
                         <label>生成宽度：</label>
-                        <input id="inpt_savePic_width" onchange="setData()" type="text" placeholder="默认宽度"> px
+                        <input id="inpt_savePic_width" onchange="setData()" type="text" style="width: 70px;" placeholder="默认宽度"> px
                     </li>
                 </div>
                 
                 <!-- 底部大按钮 -->
                 <li style="margin-top: 20px;">
-                    <button onclick="Download(Download1)" class="large-btn" style="width: 100%;">💾 生成并保存图片</button>
+                    <button onclick="Download(Download1)" class="large-btn" style="width: 100%;">生成并保存图片</button>
                 </li>
                 <li style="display: flex; gap: 10px; margin-top: 10px;">
                     <button onclick="Download(Download3)" style="flex: 1;">备用下载方案 1</button>
@@ -237,7 +518,7 @@
                         </div>
                     </div>
                     <div style="margin-top: 15px;">
-                        <button onclick="Json2Draw()" class="flush-btn">🎲 随机生成</button>
+                        <button onclick="Json2Draw()" class="flush-btn">随机生成</button>
                         <button onclick="drawpic_initbtn_onClick()" class="init-btn">清空画布</button>
                         <div style="height: 10px;"></div>
                         <button onclick="drawpic_hidebtn_onClick()">取消</button>
@@ -248,23 +529,8 @@
             </div>
         </div>
 
-        <!-- 底部免责说明 -->
-        <div class="warning-wrap">
-            <div class="warning">
-                <b>⚠️ 免责声明</b>
-                <span>本工具仅供编程学习与界面设计交流，请勿用于任何虚假打卡或商业用途。</span>
-            </div>
-            <div class="explanation" style="margin-top: 10px; font-size: 13px;">
-                <p>🛠 <b>功能说明：</b></p>
-                <p>1. 修改上方输入框内容，预览图实时更新。</p>
-                <p>2. 点击“保存设置”可将头像和昵称缓存在本地，下次无需重复输入。</p>
-                <p>3. 支持自动获取当前城市的实时气温和湿度。</p>
-                <p>🔗 项目开源地址：<a href="https://gitee.com/joytion/keep/" target="_blank">Gitee - KEEPro</a></p>
-            </div>
-        </div>
-    </div>
+  
 
-    <!-- 🚀 脚本优化：全部使用 defer 异步加载，不阻塞页面渲染 -->
     <script src="js/invoke/html2canvas.min.js" defer></script>
     <script src="js/invoke/amapHelper.js" defer></script>
     <script src="js/indexedDB.js" defer></script>
@@ -275,8 +541,7 @@
     <script src="js/img_both_inpt_set.js" defer></script>
     <script src="js/draw_personalization.js" defer></script>
     <script src="js/download_img.js" defer></script>
-<!-- 在这里插入新脚本 -->
-    <script src="js/localTrackGen.js"></script> 
+    <script src="js/localTrackGen.js"></script>
     <script src="js/drawMine.js" defer></script>
     <script src="js/onload.js" defer></script>
 </body>
